@@ -1,6 +1,7 @@
 #include "Redirections.h"
 #include "Logging.h"
 #include "StringUtils.h"
+#include "Config.h"
 #include <ShlObj.h>
 #include <stdbool.h>
 
@@ -8,55 +9,71 @@
 // |                         Redirect support                         |
 // +==================================================================+
 
-#define NEW_INIS_COMMON_SUFFIX L"\\My Games\\Enderal\\"
-#define NEW_INI_SUFFIX NEW_INIS_COMMON_SUFFIX L"Enderal.ini"
-#define NEW_PREFS_INI_SUFFIX NEW_INIS_COMMON_SUFFIX L"EnderalPrefs.ini"
+// The redirected file paths are stored in memory to prevent having to allocate and
+// free memory on every call.
 
 static wchar_t* NewIniW = NULL;
 static wchar_t* NewPrefsIniW = NULL;
+static wchar_t* NewPluginsW = NULL;
 
 static char* NewIniA = NULL;
 static char* NewPrefsIniA = NULL;
+static char* NewPluginsA = NULL;
 
+
+// Tries to redirect a wide path. If the path can't be redirected, it is returned unchanged.
+// The returned string does not need to be freed.
 static const wchar_t* TryRedirectW(const wchar_t* input)
 {
-	size_t inputSize = wcslen(input) + 1;
-	wchar_t* inputUpper = calloc(inputSize, sizeof(wchar_t));
-	wcscpy_s(inputUpper, inputSize, input);
-	_wcsupr_s(inputUpper, inputSize);
+	const wchar_t* fileName = SR_GetFileNameW(input);
 
 	const wchar_t* result = input;
-	if (wcsstr(inputUpper, L"SKYRIM.INI")) result = NewIniW;
-	else if (wcsstr(inputUpper, L"SKYRIMPREFS.INI")) result = NewPrefsIniW;
-
-	free(inputUpper);
-
+	if (SR_AreCaseInsensitiveEqualW(fileName, L"Skyrim.ini")) result = NewIniW;
+	else if (SR_AreCaseInsensitiveEqualW(fileName, L"SkyrimPrefs.ini")) result = NewPrefsIniW;
+	else if (SR_AreCaseInsensitiveEqualW(fileName, L"plugins.txt")) result = NewPluginsW;
+	
 	return result;
 }
 
+// Tries to redirect a narrow path. If the path can't be redirected, it is returned unchanged.
+// The returned string does not need to be freed.
 static const char* TryRedirectA(const char* input)
 {
-	size_t inputSize = strlen(input) + 1;
-	char* inputUpper = calloc(inputSize, sizeof(char));
-	strcpy_s(inputUpper, inputSize, input);
-	_strupr_s(inputUpper, inputSize);
+	const char* fileName = SR_GetFileNameA(input);
 
 	const char* result = input;
-	if (strstr(inputUpper, "SKYRIM.INI")) result = NewIniA;
-	else if (strstr(inputUpper, "SKYRIMPREFS.INI")) result = NewPrefsIniA;
-
-	free(inputUpper);
-
+	if (SR_AreCaseInsensitiveEqualA(fileName, "Skyrim.ini")) result = NewIniA;
+	else if (SR_AreCaseInsensitiveEqualA(fileName, "SkyrimPrefs.ini")) result = NewPrefsIniA;
+	else if (SR_AreCaseInsensitiveEqualA(fileName, "plugins.txt")) result = NewPluginsA;
+	
 	return result;
 }
+/*
++==================================================================+
+|                        Redirect functions                        |
++==================================================================+
+| The functions below are used by the game instead of the          |
+| actual Windows API.                                              |
++------------------------------------------------------------------+
+*/
 
-// +==================================================================+
-// |                        Redirect functions                        |
-// +==================================================================+
+/*
+The following macro is be used as: REDIRECT(WinAPI function name, WinAPI return value, WinAPI arguments)
+It creates three definitions:
+
+  1. A typedef for a function pointer of the specified API, called (name)_t
+
+  2. A static variable of the type just typedef'd, called SR_Original_(name)
+	 This variable should store the original WinAPI being redirected, and can
+	 be used to call the original API from inside the redirect.
+  3. A function signature identical to the API being redirected, called
+	 SR_Redirect_(name)
+*/
+
 
 #define REDIRECT(name, ret, ...) typedef ret(WINAPI *##name##_t)(__VA_ARGS__); \
 	static name##_t SR_Original_##name; \
-	ret WINAPI SR_##name(__VA_ARGS__)
+	ret WINAPI SR_Redirect_##name(__VA_ARGS__)
 
 REDIRECT(CreateFileA, HANDLE, LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile)
 {
@@ -196,10 +213,22 @@ REDIRECT(GetFileAttributesExA, BOOL, LPCSTR lpFileName, GET_FILEEX_INFO_LEVELS f
 	return SR_Original_GetFileAttributesExA(lpFileName, fInfoLevelId, lpFileInformation);
 }
 
-REDIRECT(GetFileAttributesExW, BOOL,LPCWSTR lpFileName,GET_FILEEX_INFO_LEVELS fInfoLevelId,LPVOID lpFileInformation)
+REDIRECT(GetFileAttributesExW, BOOL, LPCWSTR lpFileName, GET_FILEEX_INFO_LEVELS fInfoLevelId, LPVOID lpFileInformation)
 {
 	lpFileName = TryRedirectW(lpFileName);
 	return SR_Original_GetFileAttributesExW(lpFileName, fInfoLevelId, lpFileInformation);
+}
+
+REDIRECT(SetFileAttributesA, BOOL, LPCSTR lpFileName, DWORD dwFileAttributes)
+{
+	lpFileName = TryRedirectA(lpFileName);
+	return SR_Original_SetFileAttributesA(lpFileName, dwFileAttributes);
+}
+
+REDIRECT(SetFileAttributesW, BOOL, LPCWSTR lpFileName, DWORD dwFileAttributes)
+{
+	lpFileName = TryRedirectW(lpFileName);
+	return SR_Original_SetFileAttributesW(lpFileName, dwFileAttributes);
 }
 
 #undef REDIRECT
@@ -210,6 +239,7 @@ REDIRECT(GetFileAttributesExW, BOOL,LPCWSTR lpFileName,GET_FILEEX_INFO_LEVELS fI
 
 static SR_Redirection* Redirections = NULL;
 
+// Adds a WinAPI function redirection to the list of redirections.
 static void AddRedirection(PVOID* original, PVOID redirected, const wchar_t* name)
 {
 	SR_Redirection* current = current = calloc(1, sizeof(SR_Redirection));
@@ -222,48 +252,71 @@ static void AddRedirection(PVOID* original, PVOID redirected, const wchar_t* nam
 	Redirections = current;
 }
 
-#define ADD_REDIRECT(name) SR_Original_##name = (name##_t)GetProcAddress(kernel32, #name); AddRedirection(&(PVOID)SR_Original_##name, (PVOID)SR_##name, L#name)
-#define ADD_REDIRECTAW(name) ADD_REDIRECT(name##A); ADD_REDIRECT(name##W)
-
-static void CreateNewInis()
+static void CreateNewPaths()
 {
+	// ==== Paths relative to the Documents folder ===
+
 	wchar_t* documentsPath;
 	SHGetKnownFolderPath(&FOLDERID_Documents, 0, NULL, &documentsPath);
 
 	size_t documentsPathLen = wcslen(documentsPath);
 
-	size_t newIniSize = documentsPathLen + wcslen(NEW_INI_SUFFIX) + 1;
+	// Skyrim.ini
+	size_t newIniSize = documentsPathLen + wcslen(SR_INI_PATH) + 1;
 	NewIniW = calloc(newIniSize, sizeof(wchar_t));
 	wcscpy_s(NewIniW, newIniSize, documentsPath);
-	wcscat_s(NewIniW, newIniSize, NEW_INI_SUFFIX);
+	wcscat_s(NewIniW, newIniSize, SR_INI_PATH);
 
 	NewIniA = SR_Utf16ToUtf8(NewIniW);
 
 	SR_INFO("Skyrim.ini will be redirected to %ls", NewIniW);
 
-	size_t newPrefsIniSize = documentsPathLen + wcslen(NEW_PREFS_INI_SUFFIX) + 1;
+	// SkyrimPrefs.ini
+	size_t newPrefsIniSize = documentsPathLen + wcslen(SR_PREFS_INI_PATH) + 1;
 	NewPrefsIniW = calloc(newPrefsIniSize, sizeof(wchar_t));
 	wcscpy_s(NewPrefsIniW, newPrefsIniSize, documentsPath);
-	wcscat_s(NewPrefsIniW, newPrefsIniSize, NEW_PREFS_INI_SUFFIX);
+	wcscat_s(NewPrefsIniW, newPrefsIniSize, SR_PREFS_INI_PATH);
 
 	NewPrefsIniA = SR_Utf16ToUtf8(NewPrefsIniW);
 
 	SR_INFO("SkyrimPrefs.ini will be redirected to %ls", NewPrefsIniW);
 
 	CoTaskMemFree(documentsPath);
+
+	// ==== Paths relative to the Local AppData folder ===
+
+	wchar_t* localAppDataPath;
+	SHGetKnownFolderPath(&FOLDERID_LocalAppData, 0, NULL, &localAppDataPath);
+
+	size_t localAppDataPathLen = wcslen(localAppDataPath);
+
+	// plugins.txt
+	size_t newPluginsSize = localAppDataPathLen + wcslen(SR_PLUGINS_PATH) + 1;
+	NewPluginsW = calloc(newPluginsSize, sizeof(wchar_t));
+	wcscpy_s(NewPluginsW, newPluginsSize, localAppDataPath);
+	wcscat_s(NewPluginsW, newPluginsSize, SR_PLUGINS_PATH);
+
+	NewPluginsA = SR_Utf16ToUtf8(NewPluginsW);
+
+	SR_INFO("plugins.txt will be redirect to %ls", NewPluginsW);
+
+	CoTaskMemFree(localAppDataPath);
 }
+
+#define ADD_REDIRECT(name) SR_Original_##name = (name##_t)GetProcAddress(kernel32, #name); AddRedirection(&(PVOID)SR_Original_##name, (PVOID)SR_Redirect_##name, L#name)
+#define ADD_REDIRECTAW(name) ADD_REDIRECT(name##A); ADD_REDIRECT(name##W)
 
 static void CreateRedirections()
 {
 	SR_FreeRedirections();
-	CreateNewInis();
+	CreateNewPaths();
 
 	HMODULE kernel32 = GetModuleHandleW(L"kernel32");
 
 	ADD_REDIRECTAW(CreateFile);
 	ADD_REDIRECT(CreateFile2);
 	ADD_REDIRECT(OpenFile);
-	
+
 	ADD_REDIRECTAW(GetPrivateProfileSection);
 	ADD_REDIRECTAW(GetPrivateProfileString);
 	ADD_REDIRECTAW(GetPrivateProfileInt);
@@ -273,9 +326,10 @@ static void CreateRedirections()
 	ADD_REDIRECTAW(WritePrivateProfileSection);
 	ADD_REDIRECTAW(WritePrivateProfileString);
 	ADD_REDIRECTAW(WritePrivateProfileStruct);
-	
+
 	ADD_REDIRECTAW(GetFileAttributes);
 	ADD_REDIRECTAW(GetFileAttributesEx);
+	ADD_REDIRECTAW(SetFileAttributes);
 
 	CloseHandle(kernel32);
 
@@ -290,17 +344,25 @@ SR_Redirection* SR_GetRedirections()
 	return Redirections;
 }
 
-static void FreeNewInis()
+static void FreeNewPaths()
 {
 	free(NewIniA);
 	NewIniA = NULL;
+
 	free(NewIniW);
 	NewIniW = NULL;
 
 	free(NewPrefsIniA);
 	NewPrefsIniA = NULL;
+
 	free(NewPrefsIniW);
 	NewPrefsIniW = NULL;
+
+	free(NewPluginsW);
+	NewPluginsW = NULL;
+
+	free(NewPluginsA);
+	NewPluginsA = NULL;
 }
 
 void SR_FreeRedirections()
@@ -312,5 +374,5 @@ void SR_FreeRedirections()
 		free(previous);
 	}
 
-	FreeNewInis();	
+	FreeNewPaths();
 }
