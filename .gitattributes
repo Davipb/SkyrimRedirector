@@ -1,0 +1,7 @@
+* text=auto
+
+*.h text linguist-language=C
+*.c text linguist-language=C
+
+include/* linguist-vendored
+lib/* linguist-vendored
