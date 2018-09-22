@@ -4,7 +4,7 @@
 
 #include <stdbool.h>
 #include <Windows.h>
-#include "detours.h"
+#include "..\Detours\detours.h"
 
 
 static bool Attached = false;

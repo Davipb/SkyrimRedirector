@@ -3,5 +3,4 @@
 *.h text linguist-language=C
 *.c text linguist-language=C
 
-include/* linguist-vendored
-lib/* linguist-vendored
+/Detours/* linguist-vendored
