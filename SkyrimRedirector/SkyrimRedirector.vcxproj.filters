@@ -15,39 +15,39 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="PluginAPI.h">
+    <ClInclude Include="**/*.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Redirector.h">
+    <ClInclude Include="**/*.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Logging.h">
+    <ClInclude Include="**/*.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Config.h">
+    <ClInclude Include="**/*.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Redirections.h">
+    <ClInclude Include="**/*.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="StringUtils.h">
+    <ClInclude Include="**/*.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Main.c">
+    <ClCompile Include="**/*.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Redirector.c">
+    <ClCompile Include="**/*.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Logging.c">
+    <ClCompile Include="**/*.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Redirections.c">
+    <ClCompile Include="**/*.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="StringUtils.c">
+    <ClCompile Include="**/*.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

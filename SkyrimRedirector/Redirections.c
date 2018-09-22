@@ -87,12 +87,6 @@ REDIRECT(CreateFileW, HANDLE, LPCWSTR lpFileName, DWORD dwDesiredAccess, DWORD d
 	return SR_Original_CreateFileW(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
 }
 
-REDIRECT(CreateFile2, HANDLE, LPCWSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, DWORD dwCreationDisposition, LPCREATEFILE2_EXTENDED_PARAMETERS pCreateExParams)
-{
-	lpFileName = TryRedirectW(lpFileName);
-	return SR_Original_CreateFile2(lpFileName, dwDesiredAccess, dwShareMode, dwCreationDisposition, pCreateExParams);
-}
-
 REDIRECT(OpenFile, HFILE, LPCSTR lpFileName, LPOFSTRUCT lpReOpenBuff, UINT uStyle)
 {
 	lpFileName = TryRedirectA(lpFileName);
@@ -314,7 +308,6 @@ static void CreateRedirections()
 	HMODULE kernel32 = GetModuleHandleW(L"kernel32");
 
 	ADD_REDIRECTAW(CreateFile);
-	ADD_REDIRECT(CreateFile2);
 	ADD_REDIRECT(OpenFile);
 
 	ADD_REDIRECTAW(GetPrivateProfileSection);
