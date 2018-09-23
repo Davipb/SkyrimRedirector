@@ -1,5 +1,6 @@
 #include "StringUtils.h"
 #include "Logging.h"
+#include <stdlib.h>
 #include <locale.h>
 #include <Windows.h>
 

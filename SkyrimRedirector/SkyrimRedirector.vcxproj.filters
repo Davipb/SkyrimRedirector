@@ -18,6 +18,9 @@
     <ClInclude Include="**/*.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClCompile Include="**/*.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClInclude Include="**/*.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -28,6 +31,24 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="**/*.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Logging.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PluginAPI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Redirections.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Redirector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StringUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="**/*.h">
@@ -35,9 +56,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="**/*.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="**/*.c">
       <Filter>Source Files</Filter>
     </ClCompile>
