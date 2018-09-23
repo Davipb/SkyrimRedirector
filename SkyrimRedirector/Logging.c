@@ -71,7 +71,7 @@ void SR_StartLogging()
 
 	LogFile = CreateFileW(
 		logFilePath,
-		GENERIC_WRITE,
+		FILE_APPEND_DATA,
 		FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
 		NULL,
 		OPEN_ALWAYS,
@@ -105,16 +105,9 @@ static const wchar_t* NameOf(int level)
 	}
 }
 
-
-
-static bool LogLock = false;
-
 void SR_Log(int level, const wchar_t* message, ...)
 {
 	if (level < SR_LOG_LEVEL || LogFile == INVALID_HANDLE_VALUE) return;
-	if (LogLock) return;
-	LogLock = true;
-
 
 	SYSTEMTIME time;
 	GetLocalTime(&time);
@@ -139,8 +132,6 @@ void SR_Log(int level, const wchar_t* message, ...)
 
 	WriteFile(LogFile, result, strlen(result), NULL, NULL);
 	free(result);
-
-	LogLock = false;
 }
 
 #undef SR_LOG_LEVEL
