@@ -31,7 +31,7 @@ static const wchar_t* TryRedirectW(const wchar_t* input)
 	if (SR_AreCaseInsensitiveEqualW(fileName, L"Skyrim.ini")) result = NewIniW;
 	else if (SR_AreCaseInsensitiveEqualW(fileName, L"SkyrimPrefs.ini")) result = NewPrefsIniW;
 	else if (SR_AreCaseInsensitiveEqualW(fileName, L"plugins.txt")) result = NewPluginsW;
-	
+
 	return result;
 }
 
@@ -45,7 +45,7 @@ static const char* TryRedirectA(const char* input)
 	if (SR_AreCaseInsensitiveEqualA(fileName, "Skyrim.ini")) result = NewIniA;
 	else if (SR_AreCaseInsensitiveEqualA(fileName, "SkyrimPrefs.ini")) result = NewPrefsIniA;
 	else if (SR_AreCaseInsensitiveEqualA(fileName, "plugins.txt")) result = NewPluginsA;
-	
+
 	return result;
 }
 /*
@@ -66,6 +66,7 @@ It creates three definitions:
   2. A static variable of the type just typedef'd, called SR_Original_(name)
 	 This variable should store the original WinAPI being redirected, and can
 	 be used to call the original API from inside the redirect.
+
   3. A function signature identical to the API being redirected, called
 	 SR_Redirect_(name)
 */
@@ -225,6 +226,116 @@ REDIRECT(SetFileAttributesW, BOOL, LPCWSTR lpFileName, DWORD dwFileAttributes)
 	return SR_Original_SetFileAttributesW(lpFileName, dwFileAttributes);
 }
 
+REDIRECT(CopyFileA, BOOL, LPCSTR lpExistingFileName, LPCSTR lpNewFileName, BOOL bFailIfExists)
+{
+	lpExistingFileName = TryRedirectA(lpExistingFileName);
+	lpExistingFileName = TryRedirectA(lpNewFileName);
+	return SR_Original_CopyFileA(lpExistingFileName, lpNewFileName, bFailIfExists);
+}
+
+REDIRECT(CopyFileW, BOOL, LPCWSTR lpExistingFileName, LPCWSTR lpNewFileName, BOOL bFailIfExists)
+{
+	lpExistingFileName = TryRedirectW(lpExistingFileName);
+	lpExistingFileName = TryRedirectW(lpNewFileName);
+	return SR_Original_CopyFileA(lpExistingFileName, lpNewFileName, bFailIfExists);
+}
+
+REDIRECT(CopyFileExA, BOOL, LPCSTR lpExistingFileName, LPCSTR lpNewFileName, LPPROGRESS_ROUTINE lpProgressRoutine, LPVOID lpData, LPBOOL pbCancel, DWORD dwCopyFlags)
+{
+	lpExistingFileName = TryRedirectA(lpExistingFileName);
+	lpExistingFileName = TryRedirectA(lpNewFileName);
+	return SR_Original_CopyFileExA(lpExistingFileName, lpNewFileName, lpProgressRoutine, lpData, pbCancel, dwCopyFlags);
+}
+
+REDIRECT(CopyFileExW, BOOL, LPCWSTR lpExistingFileName, LPCWSTR lpNewFileName, LPPROGRESS_ROUTINE lpProgressRoutine, LPVOID lpData, LPBOOL pbCancel, DWORD dwCopyFlags)
+{
+	lpExistingFileName = TryRedirectW(lpExistingFileName);
+	lpExistingFileName = TryRedirectW(lpNewFileName);
+	return SR_Original_CopyFileExW(lpExistingFileName, lpNewFileName, lpProgressRoutine, lpData, pbCancel, dwCopyFlags);
+}
+
+REDIRECT(CreateHardLinkA, BOOL, LPCSTR lpFileName, LPCSTR lpExistingFileName, LPSECURITY_ATTRIBUTES lpSecurityAttributes)
+{
+	lpFileName = TryRedirectA(lpFileName);
+	lpExistingFileName = TryRedirectA(lpExistingFileName);
+	return SR_Original_CreateHardLinkA(lpFileName, lpExistingFileName, lpSecurityAttributes);
+}
+
+REDIRECT(CreateHardLinkW, BOOL, LPCWSTR lpFileName, LPCWSTR lpExistingFileName, LPSECURITY_ATTRIBUTES lpSecurityAttributes)
+{
+	lpFileName = TryRedirectW(lpFileName);
+	lpExistingFileName = TryRedirectW(lpExistingFileName);
+	return SR_Original_CreateHardLinkW(lpFileName, lpExistingFileName, lpSecurityAttributes);
+}
+
+REDIRECT(CreateSymbolicLinkA, BOOLEAN, LPCSTR lpSymlinkFileName, LPCSTR lpTargetFileName, DWORD dwFlags)
+{
+	lpSymlinkFileName = TryRedirectA(lpSymlinkFileName);
+	lpTargetFileName = TryRedirectA(lpTargetFileName);
+	return SR_Original_CreateSymbolicLinkA(lpSymlinkFileName, lpTargetFileName, dwFlags);
+}
+
+REDIRECT(CreateSymbolicLinkW, BOOLEAN, LPCWSTR lpSymlinkFileName, LPCWSTR lpTargetFileName, DWORD dwFlags)
+{
+	lpSymlinkFileName = TryRedirectW(lpSymlinkFileName);
+	lpTargetFileName = TryRedirectW(lpTargetFileName);
+	return SR_Original_CreateSymbolicLinkW(lpSymlinkFileName, lpTargetFileName, dwFlags);
+}
+
+REDIRECT(DeleteFileA, BOOL, LPCSTR lpFileName)
+{
+	lpFileName = TryRedirectA(lpFileName);
+	return SR_Original_DeleteFileA(lpFileName);
+}
+
+REDIRECT(DeleteFileW, BOOL, LPCWSTR lpFileName)
+{
+	lpFileName = TryRedirectW(lpFileName);
+	return SR_Original_DeleteFileW(lpFileName);
+}
+
+REDIRECT(MoveFileA, BOOL, LPCSTR lpExistingFileName, LPCSTR lpNewFileName)
+{
+	lpExistingFileName = TryRedirectA(lpExistingFileName);
+	lpNewFileName = TryRedirectA(lpNewFileName);
+	return SR_Original_MoveFileA(lpExistingFileName, lpNewFileName);
+}
+
+REDIRECT(MoveFileW, BOOL, LPCWSTR lpExistingFileName, LPCWSTR lpNewFileName)
+{
+	lpExistingFileName = TryRedirectW(lpExistingFileName);
+	lpNewFileName = TryRedirectW(lpNewFileName);
+	return SR_Original_MoveFileW(lpExistingFileName, lpNewFileName);
+}
+
+REDIRECT(MoveFileExA, BOOL, LPCSTR lpExistingFileName, LPCSTR lpNewFileName, DWORD dwFlags)
+{
+	lpExistingFileName = TryRedirectA(lpExistingFileName);
+	lpNewFileName = TryRedirectA(lpNewFileName);
+	return SR_Original_MoveFileExA(lpExistingFileName, lpNewFileName, dwFlags);
+}
+
+REDIRECT(MoveFileExW, BOOL, LPCWSTR lpExistingFileName, LPCWSTR lpNewFileName, DWORD dwFlags)
+{
+	lpExistingFileName = TryRedirectW(lpExistingFileName);
+	lpNewFileName = TryRedirectW(lpNewFileName);
+	return SR_Original_MoveFileExW(lpExistingFileName, lpNewFileName, dwFlags);
+}
+
+REDIRECT(MoveFileWithProgressA, BOOL, LPCSTR lpExistingFileName, LPCSTR lpNewFileName, LPPROGRESS_ROUTINE lpProgressRoutine, LPVOID lpData, DWORD dwFlags)
+{
+	lpExistingFileName = TryRedirectA(lpExistingFileName);
+	lpNewFileName = TryRedirectA(lpNewFileName);
+	return SR_Original_MoveFileWithProgressA(lpExistingFileName, lpNewFileName, lpProgressRoutine, lpData, dwFlags);
+}
+
+REDIRECT(MoveFileWithProgressW, BOOL, LPCWSTR lpExistingFileName, LPCWSTR lpNewFileName, LPPROGRESS_ROUTINE lpProgressRoutine, LPVOID lpData, DWORD dwFlags)
+{
+	lpExistingFileName = TryRedirectW(lpExistingFileName);
+	lpNewFileName = TryRedirectW(lpNewFileName);
+	return SR_Original_MoveFileWithProgressW(lpExistingFileName, lpNewFileName, lpProgressRoutine, lpData, dwFlags);
+}
+
 #undef REDIRECT
 
 // +==================================================================+
@@ -292,11 +403,24 @@ static void CreateNewPaths()
 
 	NewPluginsA = SR_Utf16ToCodepage(NewPluginsW);
 
-	SR_INFO("plugins.txt will be redirect to %ls", NewPluginsW);
+	SR_INFO("plugins.txt will be redirected to %ls", NewPluginsW);
 
 	CoTaskMemFree(localAppDataPath);
 }
 
+/*
+The following macro is to be used as: ADD_REDIRECT(name);
+It does two things:
+
+  1. Set SR_Original_(name) to the address of (name) in Kernel32
+
+  2. Call AddRedirection with SR_Original_(name) as the original pointer and
+	 SR_Redirect_(name) as the redirect pointer.
+
+A convenience macro, ADD_REDIRECTAW, is supplied for redirecting both the A (ANSI)
+and W (Wide/Unicode) versions of a function.
+
+*/
 #define ADD_REDIRECT(name) SR_Original_##name = (name##_t)GetProcAddress(kernel32, #name); AddRedirection(&(PVOID)SR_Original_##name, (PVOID)SR_Redirect_##name, L#name)
 #define ADD_REDIRECTAW(name) ADD_REDIRECT(name##A); ADD_REDIRECT(name##W)
 
@@ -308,6 +432,15 @@ static void CreateRedirections()
 	HMODULE kernel32 = GetModuleHandleW(L"kernel32");
 
 	ADD_REDIRECTAW(CreateFile);
+	ADD_REDIRECTAW(DeleteFile);
+	ADD_REDIRECTAW(CopyFile);
+	ADD_REDIRECTAW(CopyFileEx);
+	ADD_REDIRECTAW(MoveFile);
+	ADD_REDIRECTAW(MoveFileEx);
+	ADD_REDIRECTAW(MoveFileWithProgress);
+	ADD_REDIRECTAW(CreateHardLink);
+	ADD_REDIRECTAW(CreateSymbolicLink);
+
 	ADD_REDIRECT(OpenFile);
 
 	ADD_REDIRECTAW(GetPrivateProfileSection);
@@ -323,6 +456,7 @@ static void CreateRedirections()
 	ADD_REDIRECTAW(GetFileAttributes);
 	ADD_REDIRECTAW(GetFileAttributesEx);
 	ADD_REDIRECTAW(SetFileAttributes);
+
 
 	CloseHandle(kernel32);
 

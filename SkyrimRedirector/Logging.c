@@ -7,11 +7,7 @@
 #include <stdbool.h>
 #include <wchar.h>
 
-#ifdef DEBUG
 #define SR_LOG_LEVEL SR_LOG_LEVEL_TRACE
-#else 
-#define SR_LOG_LEVEL SR_LOG_LEVEL_INFO
-#endif
 
 #define SR_LOG_FILE_NAME L"SkyrimRedirector.log"
 #define SR_LOG_HEADER_SIZE 32
