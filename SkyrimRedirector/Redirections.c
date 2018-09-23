@@ -261,7 +261,7 @@ static void CreateNewPaths()
 	wcscpy_s(NewIniW, newIniSize, documentsPath);
 	wcscat_s(NewIniW, newIniSize, SR_INI_PATH);
 
-	NewIniA = SR_Utf16ToUtf8(NewIniW);
+	NewIniA = SR_Utf16ToCodepage(NewIniW);
 
 	SR_INFO("Skyrim.ini will be redirected to %ls", NewIniW);
 
@@ -271,7 +271,7 @@ static void CreateNewPaths()
 	wcscpy_s(NewPrefsIniW, newPrefsIniSize, documentsPath);
 	wcscat_s(NewPrefsIniW, newPrefsIniSize, SR_PREFS_INI_PATH);
 
-	NewPrefsIniA = SR_Utf16ToUtf8(NewPrefsIniW);
+	NewPrefsIniA = SR_Utf16ToCodepage(NewPrefsIniW);
 
 	SR_INFO("SkyrimPrefs.ini will be redirected to %ls", NewPrefsIniW);
 
@@ -290,7 +290,7 @@ static void CreateNewPaths()
 	wcscpy_s(NewPluginsW, newPluginsSize, localAppDataPath);
 	wcscat_s(NewPluginsW, newPluginsSize, SR_PLUGINS_PATH);
 
-	NewPluginsA = SR_Utf16ToUtf8(NewPluginsW);
+	NewPluginsA = SR_Utf16ToCodepage(NewPluginsW);
 
 	SR_INFO("plugins.txt will be redirect to %ls", NewPluginsW);
 

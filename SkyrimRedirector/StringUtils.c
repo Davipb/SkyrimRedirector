@@ -14,14 +14,17 @@ _locale_t SR_GetInvariantLocale()
 	return InvariantLocale;
 }
 
-char* SR_Utf16ToUtf8(const wchar_t* utf16)
+static char* Utf16ToCodepage(const wchar_t* utf16, UINT codePage)
 {
 	int needed = WideCharToMultiByte(CP_UTF8, 0, utf16, -1, NULL, 0, NULL, NULL);
 	char* result = calloc(needed, sizeof(char));
-	WideCharToMultiByte(CP_UTF8, 0, utf16, -1, result, needed, NULL, NULL);
+	WideCharToMultiByte(codePage, 0, utf16, -1, result, needed, NULL, NULL);
 
 	return result;
 }
+
+char* SR_Utf16ToUtf8(const wchar_t* utf16) { return Utf16ToCodepage(utf16, CP_UTF8); }
+char* SR_Utf16ToCodepage(const wchar_t* utf16) { return Utf16ToCodepage(utf16, CP_ACP); }
 
 const wchar_t* SR_GetFileNameW(const wchar_t* path)
 {

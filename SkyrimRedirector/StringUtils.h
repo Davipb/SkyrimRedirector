@@ -9,6 +9,10 @@ _locale_t SR_GetInvariantLocale();
 // The new string is allocated dynamically must be freed
 char* SR_Utf16ToUtf8(const wchar_t* utf16);
 
+// Transforms a UTF16 string to a Windows Codepage string.
+// The new string is allocated dynamically must be freed
+char* SR_Utf16ToCodepage(const wchar_t* utf16);
+
 // Gets the file name from a wide file path.
 // The returned string points to the same buffer as `path`, and doesn't need to be freed.
 const wchar_t* SR_GetFileNameW(const wchar_t* path);
