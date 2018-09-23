@@ -20,9 +20,9 @@ __declspec(dllexport) bool SKSEPlugin_Load(const SKSEInterface* skse)
 {
 	(void)skse;
 
+	SR_StartLogging();
 	SR_DEBUG("SKSE load request received");
 
-	SR_StartLogging();
 	return SR_AttachRedirector();
 }
 

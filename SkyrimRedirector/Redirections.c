@@ -9,16 +9,17 @@
 // |                         Redirect support                         |
 // +==================================================================+
 
-// The redirected file paths are stored in memory to prevent having to allocate and
-// free memory on every call.
 
-static wchar_t* NewIniW = NULL;
-static wchar_t* NewPrefsIniW = NULL;
-static wchar_t* NewPluginsW = NULL;
-
-static char* NewIniA = NULL;
-static char* NewPrefsIniA = NULL;
-static char* NewPluginsA = NULL;
+// This variable contains a copy of every path stored in the user config, converted
+// to the windows ANSI codepage.
+// This allows functions to pass a pointer to the Windows API without allocating a new
+// string at every ANSI call just to convert a Unicode string to ANSI.
+static struct
+{
+	char* Ini;
+	char* PrefsIni;
+	char* Plugins;
+} UserConfigA;
 
 
 // Tries to redirect a wide path. If the path can't be redirected, it is returned unchanged.
@@ -28,9 +29,9 @@ static const wchar_t* TryRedirectW(const wchar_t* input)
 	const wchar_t* fileName = SR_GetFileNameW(input);
 
 	const wchar_t* result = input;
-	if (SR_AreCaseInsensitiveEqualW(fileName, L"Skyrim.ini")) result = NewIniW;
-	else if (SR_AreCaseInsensitiveEqualW(fileName, L"SkyrimPrefs.ini")) result = NewPrefsIniW;
-	else if (SR_AreCaseInsensitiveEqualW(fileName, L"plugins.txt")) result = NewPluginsW;
+	if (SR_AreCaseInsensitiveEqualW(fileName, L"Skyrim.ini")) result = SR_GetUserConfig()->Redirection.Ini;
+	else if (SR_AreCaseInsensitiveEqualW(fileName, L"SkyrimPrefs.ini")) result = SR_GetUserConfig()->Redirection.PrefsIni;
+	else if (SR_AreCaseInsensitiveEqualW(fileName, L"plugins.txt")) result = SR_GetUserConfig()->Redirection.Plugins;
 
 	return result;
 }
@@ -42,9 +43,9 @@ static const char* TryRedirectA(const char* input)
 	const char* fileName = SR_GetFileNameA(input);
 
 	const char* result = input;
-	if (SR_AreCaseInsensitiveEqualA(fileName, "Skyrim.ini")) result = NewIniA;
-	else if (SR_AreCaseInsensitiveEqualA(fileName, "SkyrimPrefs.ini")) result = NewPrefsIniA;
-	else if (SR_AreCaseInsensitiveEqualA(fileName, "plugins.txt")) result = NewPluginsA;
+	if (SR_AreCaseInsensitiveEqualA(fileName, "Skyrim.ini")) result = UserConfigA.Ini;
+	else if (SR_AreCaseInsensitiveEqualA(fileName, "SkyrimPrefs.ini")) result = UserConfigA.PrefsIni;
+	else if (SR_AreCaseInsensitiveEqualA(fileName, "plugins.txt")) result = UserConfigA.Plugins;
 
 	return result;
 }
@@ -237,7 +238,7 @@ REDIRECT(CopyFileW, BOOL, LPCWSTR lpExistingFileName, LPCWSTR lpNewFileName, BOO
 {
 	lpExistingFileName = TryRedirectW(lpExistingFileName);
 	lpExistingFileName = TryRedirectW(lpNewFileName);
-	return SR_Original_CopyFileA(lpExistingFileName, lpNewFileName, bFailIfExists);
+	return SR_Original_CopyFileW(lpExistingFileName, lpNewFileName, bFailIfExists);
 }
 
 REDIRECT(CopyFileExA, BOOL, LPCSTR lpExistingFileName, LPCSTR lpNewFileName, LPPROGRESS_ROUTINE lpProgressRoutine, LPVOID lpData, LPBOOL pbCancel, DWORD dwCopyFlags)
@@ -342,6 +343,15 @@ REDIRECT(MoveFileWithProgressW, BOOL, LPCWSTR lpExistingFileName, LPCWSTR lpNewF
 // |                      End Redirect functions                      |
 // +==================================================================+
 
+static void CreateNewPaths()
+{
+	const SR_UserConfig* config = SR_GetUserConfig();
+
+	UserConfigA.Ini = SR_Utf16ToCodepage(config->Redirection.Ini);
+	UserConfigA.PrefsIni = SR_Utf16ToCodepage(config->Redirection.PrefsIni);
+	UserConfigA.Plugins = SR_Utf16ToCodepage(config->Redirection.Plugins);
+}
+
 static SR_Redirection* Redirections = NULL;
 
 // Adds a WinAPI function redirection to the list of redirections.
@@ -355,57 +365,6 @@ static void AddRedirection(PVOID* original, PVOID redirected, const wchar_t* nam
 	current->Name = name;
 
 	Redirections = current;
-}
-
-static void CreateNewPaths()
-{
-	// ==== Paths relative to the Documents folder ===
-
-	wchar_t* documentsPath;
-	SHGetKnownFolderPath(&FOLDERID_Documents, 0, NULL, &documentsPath);
-
-	size_t documentsPathLen = wcslen(documentsPath);
-
-	// Skyrim.ini
-	size_t newIniSize = documentsPathLen + wcslen(SR_INI_PATH) + 1;
-	NewIniW = calloc(newIniSize, sizeof(wchar_t));
-	wcscpy_s(NewIniW, newIniSize, documentsPath);
-	wcscat_s(NewIniW, newIniSize, SR_INI_PATH);
-
-	NewIniA = SR_Utf16ToCodepage(NewIniW);
-
-	SR_INFO("Skyrim.ini will be redirected to %ls", NewIniW);
-
-	// SkyrimPrefs.ini
-	size_t newPrefsIniSize = documentsPathLen + wcslen(SR_PREFS_INI_PATH) + 1;
-	NewPrefsIniW = calloc(newPrefsIniSize, sizeof(wchar_t));
-	wcscpy_s(NewPrefsIniW, newPrefsIniSize, documentsPath);
-	wcscat_s(NewPrefsIniW, newPrefsIniSize, SR_PREFS_INI_PATH);
-
-	NewPrefsIniA = SR_Utf16ToCodepage(NewPrefsIniW);
-
-	SR_INFO("SkyrimPrefs.ini will be redirected to %ls", NewPrefsIniW);
-
-	CoTaskMemFree(documentsPath);
-
-	// ==== Paths relative to the Local AppData folder ===
-
-	wchar_t* localAppDataPath;
-	SHGetKnownFolderPath(&FOLDERID_LocalAppData, 0, NULL, &localAppDataPath);
-
-	size_t localAppDataPathLen = wcslen(localAppDataPath);
-
-	// plugins.txt
-	size_t newPluginsSize = localAppDataPathLen + wcslen(SR_PLUGINS_PATH) + 1;
-	NewPluginsW = calloc(newPluginsSize, sizeof(wchar_t));
-	wcscpy_s(NewPluginsW, newPluginsSize, localAppDataPath);
-	wcscat_s(NewPluginsW, newPluginsSize, SR_PLUGINS_PATH);
-
-	NewPluginsA = SR_Utf16ToCodepage(NewPluginsW);
-
-	SR_INFO("plugins.txt will be redirected to %ls", NewPluginsW);
-
-	CoTaskMemFree(localAppDataPath);
 }
 
 /*
@@ -456,10 +415,6 @@ static void CreateRedirections()
 	ADD_REDIRECTAW(GetFileAttributes);
 	ADD_REDIRECTAW(GetFileAttributesEx);
 	ADD_REDIRECTAW(SetFileAttributes);
-
-
-	CloseHandle(kernel32);
-
 }
 
 #undef ADD_REDIRECTAW
@@ -473,23 +428,14 @@ SR_Redirection* SR_GetRedirections()
 
 static void FreeNewPaths()
 {
-	free(NewIniA);
-	NewIniA = NULL;
+	free(UserConfigA.Ini);
+	UserConfigA.Ini = NULL;
 
-	free(NewIniW);
-	NewIniW = NULL;
+	free(UserConfigA.PrefsIni);
+	UserConfigA.PrefsIni = NULL;
 
-	free(NewPrefsIniA);
-	NewPrefsIniA = NULL;
-
-	free(NewPrefsIniW);
-	NewPrefsIniW = NULL;
-
-	free(NewPluginsW);
-	NewPluginsW = NULL;
-
-	free(NewPluginsA);
-	NewPluginsA = NULL;
+	free(UserConfigA.Plugins);
+	UserConfigA.Plugins = NULL;
 }
 
 void SR_FreeRedirections()

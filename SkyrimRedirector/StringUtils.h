@@ -34,3 +34,7 @@ bool SR_AreCaseInsensitiveEqualW(const wchar_t* first, const wchar_t* second);
 
 // Checks if two narrow strings are equal, ignoring case and using an invariant locale.
 bool SR_AreCaseInsensitiveEqualA(const char* first, const char* second);
+
+// Concatenates multiple strings. All arguments must be of type const wchar_t*.
+// The returned string is allocated dynamically and must be freed.
+wchar_t* SR_Concat(size_t count, ...);

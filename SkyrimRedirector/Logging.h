@@ -1,9 +1,10 @@
 #pragma once
 #include <wchar.h>
+#include <stdint.h>
 
 void SR_StartLogging();
 void SR_StopLogging();
-void SR_Log(int level, const wchar_t* message, ...);
+void SR_Log(uint8_t level, const wchar_t* message, ...);
 
 enum
 {
@@ -11,7 +12,8 @@ enum
 	SR_LOG_LEVEL_DEBUG,
 	SR_LOG_LEVEL_INFO,
 	SR_LOG_LEVEL_WARN,
-	SR_LOG_LEVEL_ERROR
+	SR_LOG_LEVEL_ERROR,
+	SR_LOG_LEVEL_OFF
 };
 
 #define SR_TRACE(message, ...) SR_Log(SR_LOG_LEVEL_TRACE, L##message, __VA_ARGS__)

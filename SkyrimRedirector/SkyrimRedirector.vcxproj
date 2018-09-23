@@ -91,7 +91,12 @@
     <ClInclude Include="Redirections.h" />
     <ClInclude Include="Redirector.h" />
     <ClInclude Include="StringUtils.h" />
-    <ClCompile Include="**/*.c" />
+    <ClCompile Include="Config.c" />
+    <ClCompile Include="Logging.c" />
+    <ClCompile Include="Main.c" />
+    <ClCompile Include="Redirections.c" />
+    <ClCompile Include="Redirector.c" />
+    <ClCompile Include="StringUtils.c" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Detours\Detours.vcxproj">

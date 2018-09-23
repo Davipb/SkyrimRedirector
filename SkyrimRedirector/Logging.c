@@ -7,9 +7,6 @@
 #include <stdbool.h>
 #include <wchar.h>
 
-#define SR_LOG_LEVEL SR_LOG_LEVEL_TRACE
-
-#define SR_LOG_FILE_NAME L"SkyrimRedirector.log"
 #define SR_LOG_HEADER_SIZE 32
 
 static HANDLE LogFile = INVALID_HANDLE_VALUE;
@@ -43,42 +40,23 @@ void SR_StartLogging()
 		return;
 	}
 
-	// Exponentially increase the buffer size until it fits the full module file name
-	size_t moduleFilePathLen = 16;
-	wchar_t* moduleFilePath = NULL;
-	do
+	const SR_UserConfig* config = SR_GetUserConfig();
+	if (config->Logging.Level < SR_LOG_LEVEL_OFF)
 	{
-		moduleFilePathLen *= 2;
-		moduleFilePath = realloc(moduleFilePath, moduleFilePathLen * sizeof(wchar_t));
-		GetModuleFileNameW(NULL, moduleFilePath, moduleFilePathLen);
+		DWORD creationDisposition = CREATE_ALWAYS;
+		if (config->Logging.Append)
+			creationDisposition = OPEN_ALWAYS;
 
-	} while (GetLastError() == ERROR_INSUFFICIENT_BUFFER);
-
-	// Start Dir is the folder of the module file -- the module file path until its last path separator
-	ptrdiff_t startDirLen = wcsrchr(moduleFilePath, L'\\') - &moduleFilePath[0];
-
-	// Log File = Start Dir \ Base Dir \ File Name '\0'
-	rsize_t logFilePathLen = startDirLen + 1 + wcslen(SR_BASE_DIR) + 1 + wcslen(SR_LOG_FILE_NAME) + 1;
-	wchar_t* logFilePath = calloc(logFilePathLen, sizeof(wchar_t));
-
-	wcsncat_s(logFilePath, logFilePathLen, moduleFilePath, startDirLen);
-	free(moduleFilePath);
-
-	wcscat_s(logFilePath, logFilePathLen, L"\\");
-	wcscat_s(logFilePath, logFilePathLen, SR_BASE_DIR);
-	wcscat_s(logFilePath, logFilePathLen, L"\\");
-	wcscat_s(logFilePath, logFilePathLen, SR_LOG_FILE_NAME);
-
-	LogFile = CreateFileW(
-		logFilePath,
-		FILE_APPEND_DATA,
-		FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
-		NULL,
-		OPEN_ALWAYS,
-		FILE_ATTRIBUTE_NORMAL,
-		NULL
-	);
-	free(logFilePath);
+		LogFile = CreateFileW(
+			config->Logging.File,
+			FILE_APPEND_DATA,
+			FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
+			NULL,
+			creationDisposition,
+			FILE_ATTRIBUTE_NORMAL,
+			NULL
+		);
+	}
 
 	SR_INFO("Skyrim Redirector by Davipb started. github.com/Davipb/SkyrimRedirector");
 }
@@ -105,9 +83,9 @@ static const wchar_t* NameOf(int level)
 	}
 }
 
-void SR_Log(int level, const wchar_t* message, ...)
+void SR_Log(uint8_t level, const wchar_t* message, ...)
 {
-	if (level < SR_LOG_LEVEL || LogFile == INVALID_HANDLE_VALUE) return;
+	if (level < SR_GetUserConfig()->Logging.Level || LogFile == INVALID_HANDLE_VALUE) return;
 
 	SYSTEMTIME time;
 	GetLocalTime(&time);

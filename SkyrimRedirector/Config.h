@@ -1,13 +1,28 @@
 #pragma once
+#include <stdint.h>
+#include <stdbool.h>
 
-// The base directory, relative to the current module path, where all logs and configs from this plugin are stored
-#define SR_BASE_DIR L"Data\\SKSE\\Plugins"
+typedef struct
+{
+	struct
+	{
+		wchar_t* File;
+		uint8_t Level;
+		bool Append;
 
-// The file path to where Skyrim.ini will be redirected, relative to the Documents folder.
-#define SR_INI_PATH L"\\My Games\\Enderal\\Enderal.ini"
+	} Logging;
 
-// The file path to where SkyrimPrefs.ini will be redirected, relative to the Documents folder.
-#define SR_PREFS_INI_PATH L"\\My Games\\Enderal\\EnderalPrefs.ini"
+	struct
+	{
+		wchar_t* Ini;
+		wchar_t* PrefsIni;
+		wchar_t* Plugins;
 
-// The file path to where plugins.txt will be redirected, relative to the Local AppData folder.
-#define SR_PLUGINS_PATH L"\\Enderal\\plugins.txt"
+	} Redirection;
+
+} SR_UserConfig;
+
+const SR_UserConfig* SR_GetUserConfig();
+void SR_FreeUserConfig();
+
+

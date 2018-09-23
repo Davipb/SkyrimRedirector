@@ -85,3 +85,27 @@ bool SR_AreCaseInsensitiveEqualA(const char* first, const char* second)
 {
 	return _stricmp_l(first, second, SR_GetInvariantLocale()) == 0;
 }
+
+wchar_t* SR_Concat(size_t count, ...)
+{
+	size_t resultSize = 1;
+	wchar_t* result = calloc(resultSize, sizeof(wchar_t));
+
+	va_list args;
+	va_start(args, count);
+
+	while (count-- > 0)
+	{
+		const wchar_t* part = va_arg(args, const wchar_t*);
+		size_t partLen = wcslen(part);
+
+		resultSize += partLen;
+		result = realloc(result, resultSize * sizeof(wchar_t));
+
+		wcscat_s(result, resultSize, part);
+	}
+
+	va_end(args);
+
+	return result;
+}
