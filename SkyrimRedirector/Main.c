@@ -21,7 +21,9 @@ __declspec(dllexport) bool SKSEPlugin_Load(const SKSEInterface* skse)
 	(void)skse;
 
 	SR_DEBUG("SKSE load request received");
-	return true;
+
+	SR_StartLogging();
+	return SR_AttachRedirector();
 }
 
 BOOL WINAPI DllMain(HINSTANCE hinst, DWORD dwReason, LPVOID reserved)
@@ -29,12 +31,7 @@ BOOL WINAPI DllMain(HINSTANCE hinst, DWORD dwReason, LPVOID reserved)
 	(void)hinst;
 	(void)reserved;
 
-	if (dwReason == DLL_PROCESS_ATTACH)
-	{
-		SR_StartLogging();
-		return SR_AttachRedirector();
-	}
-	else if (dwReason == DLL_PROCESS_DETACH)
+	if (dwReason == DLL_PROCESS_DETACH)
 	{
 		bool result = SR_DetachRedirector();
 		SR_StopLogging();
