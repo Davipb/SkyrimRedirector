@@ -1,6 +1,7 @@
 #include "PluginAPI.h"
 #include "Logging.h"
 #include "Redirector.h"
+#include "Config.h"
 #include <Windows.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -35,6 +36,7 @@ BOOL WINAPI DllMain(HINSTANCE hinst, DWORD dwReason, LPVOID reserved)
 	{
 		bool result = SR_DetachRedirector();
 		SR_StopLogging();
+		SR_FreeUserConfig();
 
 		return result;
 	}

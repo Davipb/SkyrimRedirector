@@ -36,13 +36,14 @@
 // Otherwise, the returned string is allocated dynamically and must be freed.
 static wchar_t* SR_ReadIniString(const wchar_t* section, const wchar_t* key, const wchar_t* file)
 {
+	// Exponentially increase the buffer size until it fits the full module file name
 	size_t resultSize = 16;
 	wchar_t* result = NULL;
 	DWORD actualLen;
 	do
 	{
 		resultSize *= 2;
-		result = calloc(resultSize, sizeof(wchar_t));
+		result = realloc(result, resultSize * sizeof(wchar_t));
 		actualLen = GetPrivateProfileStringW(section, key, NULL, result, resultSize, file);
 
 	} while (actualLen >= resultSize - 1);
@@ -53,7 +54,9 @@ static wchar_t* SR_ReadIniString(const wchar_t* section, const wchar_t* key, con
 		return NULL;
 	}
 
+	// Trim buffer to fit string exactly
 	result = realloc(result, (actualLen + 1) * sizeof(wchar_t));
+
 	return result;
 }
 
