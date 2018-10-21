@@ -137,7 +137,7 @@ bool TryRead(const KNOWNFOLDERID* const refid, const wchar_t* const suffix, BY_H
 	wchar_t* filePath;
 	TRY(GetKnownPath(refid, suffix, &filePath));
 
-	wprintf_s(L"\tTrying to read: %ls\n", filePath);
+	wprintf_s(L"    Trying to read: %ls\n", filePath);
 
 	HANDLE handle;
 	TRY(OpenExisting(filePath, &handle));
@@ -146,7 +146,7 @@ bool TryRead(const KNOWNFOLDERID* const refid, const wchar_t* const suffix, BY_H
 	if (GetFinalPathNameByHandleW(handle, &actualPath[0], 2047, 0) == 0)
 		RETURN_ERROR("Unable to get path name of opened file");
 
-	wprintf_s(L"\tI actually read: %ls\n", actualPath);
+	wprintf_s(L"    I actually read: %ls\n", actualPath);
 
 	BY_HANDLE_FILE_INFORMATION info;
 	if (!GetFileInformationByHandle(handle, &info)) RETURN_ERROR("Unable to get file information for %ls", actualPath);
@@ -154,29 +154,50 @@ bool TryRead(const KNOWNFOLDERID* const refid, const wchar_t* const suffix, BY_H
 	bool redirected = !FileInformationEquals(original, &info);
 
 	if (redirected)
-		wprintf_s(L"\tFile has been redirected\n");
+		wprintf_s(L"    File has been redirected\n");
 	else
-		wprintf_s(L"\tFile was not redirected\n");
+		wprintf_s(L"    File was not redirected\n");
 
 	if (redirected != shouldRedirect)
 	{
 		SetConsoleTextAttribute(StdOut, FOREGROUND_BRIGHT_RED);
-		wprintf_s(L"\tX Failed\n");
+		wprintf_s(L"    X Failed\n");
 	}
 	else
 	{
 		SetConsoleTextAttribute(StdOut, FOREGROUND_BRIGHT_GREEN);
-		wprintf_s(L"\tY Passed\n");
+		wprintf_s(L"    Y Passed\n");
 		TestsPassed++;
 	}
 
 	SetConsoleTextAttribute(StdOut, FOREGROUND_NORMAL);
 
 	CloseHandle(handle);
+
+	return true;
+}
+
+bool MoveRedirector()
+{
+	DWORD dllAttributes = GetFileAttributesW(L"SkyrimRedirector.dll");
+	if (dllAttributes == INVALID_FILE_ATTRIBUTES)
+		return true;
+
+	CreateDirectoryW(L"Data", NULL);
+	CreateDirectoryW(L"Data\\SKSE", NULL);
+	CreateDirectoryW(L"Data\\SKSE\\Plugins", NULL);
+	DeleteFileW(L"Data\\SKSE\\Plugins\\SkyrimRedirector.dll");
+
+	if (CopyFileW(L"SkyrimRedirector.dll", L"Data\\SKSE\\Plugins\\SkyrimRedirector.dll", FALSE))
+		return true;
+
+	RETURN_ERROR("Unable to copy the redirector to its proper folder");
 }
 
 bool ExecuteTests()
 {
+	TRY(MoveRedirector());
+
 	HMODULE redirector = LoadLibraryW(L"Data\\SKSE\\Plugins\\SkyrimRedirector");
 	if (redirector == NULL) RETURN_ERROR("Unable find the redirector. Is it in Data\\SKSE\\Plugins?");
 
