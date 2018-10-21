@@ -90,6 +90,7 @@
     <ClInclude Include="PluginAPI.h" />
     <ClInclude Include="Redirections.h" />
     <ClInclude Include="Redirector.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="StringUtils.h" />
     <ClCompile Include="Config.c" />
     <ClCompile Include="Logging.c" />
@@ -102,6 +103,9 @@
     <ProjectReference Include="..\Detours\Detours.vcxproj">
       <Project>{a12518fb-bc92-4a1b-a986-329aa63014ed}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Version.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>
