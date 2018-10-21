@@ -11,6 +11,7 @@ Remember, the hooks will run at *every call to the Windows API*, they should be 
 
 
 ## String Manipulation
+* `Len` should refer to the length of a string, in characters, without counting the final null terminator. `Size` should refer to the length of a string, in characters, counting the final null terminator. A `wchar_t*` string `L"Hello"` has `len = 5` and `size = 6`.
 * Strings should be `wchar_t` UTF16 whenever possible.
 * Mind the `const`. In special, strings received by WinAPI hooks should *never* **ever** be altered in-place: Copy it to a local buffer before changing anything!
 * Avoid allocations for intermediate processes. If possible, calculate the final size of the result ahead of time, allocate a buffer of that size, and do your operations directly there.

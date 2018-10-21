@@ -22,8 +22,7 @@
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <TargetExt>.dll</TargetExt>
-    <OutDir Condition="'$(SR_SKYRIM_DIR)' != ''">$(SR_SKYRIM_DIR)\Data\SKSE\Plugins\</OutDir>
-    <OutDir Condition="'$(SR_SKYRIM_DIR)' == ''">$(SolutionDir)\Build\bin\$(ProjectName)-$(Platform)-$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)\Build\bin\$(ProjectName)-$(Platform)-$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\Build\obj\$(ProjectName)-$(Platform)-$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
@@ -107,5 +106,11 @@
   <ItemGroup>
     <ResourceCompile Include="Version.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <OutputFiles Include="$(OutDir)**" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Target Name="AfterBuild" Condition="'$(SR_SKYRIM_DIR)' != ''">
+    <Copy SourceFiles="@(OutputFiles)" DestinationFolder="$(SR_SKYRIM_DIR)\Data\SKSE\Plugins\" />
+  </Target>
 </Project>

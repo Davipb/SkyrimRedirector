@@ -15,8 +15,7 @@
     <ProjectGuid>{96F5D339-025D-4C89-9ED2-BDFA089F77AF}</ProjectGuid>
     <RootNamespace>Test</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
-    <RedirectorOutDir Condition="'$(SR_SKYRIM_DIR)' != ''">$(SR_SKYRIM_DIR)\Data\SKSE\Plugins\</RedirectorOutDir>
-    <RedirectorOutDir Condition="'$(SR_SKYRIM_DIR)' == ''">$(SolutionDir)\Build\bin\SkyrimRedirector-$(Platform)-$(Configuration)\</RedirectorOutDir>
+    <RedirectorOutDir>$(SolutionDir)\Build\bin\SkyrimRedirector-$(Platform)-$(Configuration)\</RedirectorOutDir>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -101,8 +100,10 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <ItemGroup>
+    <RedirectorOutput Include="$(RedirectorOutDir)**" />
+  </ItemGroup>
   <Target Name="AfterBuild">
-    <Copy SourceFiles="$(RedirectorOutDir)SkyrimRedirector.dll" DestinationFolder="$(OutDir)" />
-    <Copy SourceFiles="$(RedirectorOutDir)SkyrimRedirector.pdb" DestinationFolder="$(OutDir)" Condition="'$(Configuration)'=='Debug'" />
+    <Copy SourceFiles="@(RedirectorOutput)" DestinationFolder="$(OutDir)" />
   </Target>
 </Project>
