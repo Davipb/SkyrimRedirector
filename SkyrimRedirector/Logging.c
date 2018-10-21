@@ -108,7 +108,8 @@ void SR_Log(uint8_t level, const wchar_t* message, ...)
 	char* result = SR_Utf16ToUtf8(buffer);
 	free(buffer);
 
-	WriteFile(LogFile, result, strlen(result), NULL, NULL);
+	DWORD bytesWritten;
+	WriteFile(LogFile, result, strlen(result), &bytesWritten, NULL);
 	free(result);
 }
 
