@@ -22,16 +22,69 @@ static struct
 } UserConfigA;
 
 
+// Search the given string for the given substring
+static const bool SR_FindPathSubstringW(const wchar_t* input, const wchar_t* expected)
+{
+  return wcsstr(input, expected) != NULL;
+}
+
+// Search the given string for the given substring
+static const bool SR_FindPathSubstringA(const char* input, const char* expected)
+{
+  return strstr(input, expected) != NULL;
+}
+
+// Convert string to uppercase and change all forward slashes to backslashes
+// Return string needs to be freed
+static const wchar_t* SR_ToUpperAndBackwardsW(const wchar_t* input)
+{
+  size_t inputSize = wcslen(input) + 1;
+  wchar_t* result = calloc(inputSize, sizeof(wchar_t));
+
+  wcscpy_s(result, inputSize, input);
+  _wcsupr_s_l(result, inputSize, SR_GetInvariantLocale());
+
+  wchar_t* pwc = wcschr(result, L'/');
+  while (pwc != NULL) {
+    *pwc = L'\\';
+    pwc = wcschr(pwc+1, L'/');
+  }
+
+  return result;
+}
+
+// Convert string to uppercase and change all forward slashes to backslashes
+// Return string needs to be freed
+static const char* SR_ToUpperAndBackwardsA(const char* input)
+{
+  size_t inputSize = strlen(input) + 1;
+  char* result = calloc(inputSize, sizeof(char));
+
+  strcpy_s(result, inputSize, input);
+  _strupr_s_l(result, inputSize, SR_GetInvariantLocale());
+
+  char* pc = strchr(result, '/');
+  while (pc != NULL) {
+    *pc = '\\';
+    pc = strchr(pc+1, '/');
+  }
+
+  return result;
+}
+
 // Tries to redirect a wide path. If the path can't be redirected, it is returned unchanged.
 // The returned string does not need to be freed.
 static const wchar_t* TryRedirectW(const wchar_t* input)
 {
-	const wchar_t* fileName = SR_GetFileNameW(input);
-
 	const wchar_t* result = input;
-	if (SR_AreCaseInsensitiveEqualW(fileName, L"Skyrim.ini")) result = SR_GetUserConfig()->Redirection.Ini;
-	else if (SR_AreCaseInsensitiveEqualW(fileName, L"SkyrimPrefs.ini")) result = SR_GetUserConfig()->Redirection.PrefsIni;
-	else if (SR_AreCaseInsensitiveEqualW(fileName, L"plugins.txt")) result = SR_GetUserConfig()->Redirection.Plugins;
+
+	const wchar_t* test = SR_ToUpperAndBackwardsW(input);
+
+	if (SR_FindPathSubstringW(test, L"\\MY GAMES\\SKYRIM\\SKYRIM.INI")) result = SR_GetUserConfig()->Redirection.Ini;
+	else if (SR_FindPathSubstringW(test, L"\\MY GAMES\\SKYRIM\\SKYRIMPREFS.INI")) result = SR_GetUserConfig()->Redirection.PrefsIni;
+	else if (SR_FindPathSubstringW(test, L"\\APPDATA\\LOCAL\\SKYRIM\\PLUGINS.TXT")) result = SR_GetUserConfig()->Redirection.Plugins;
+
+	free ((void*)test);
 
 	return result;
 }
@@ -40,12 +93,15 @@ static const wchar_t* TryRedirectW(const wchar_t* input)
 // The returned string does not need to be freed.
 static const char* TryRedirectA(const char* input)
 {
-	const char* fileName = SR_GetFileNameA(input);
-
 	const char* result = input;
-	if (SR_AreCaseInsensitiveEqualA(fileName, "Skyrim.ini")) result = UserConfigA.Ini;
-	else if (SR_AreCaseInsensitiveEqualA(fileName, "SkyrimPrefs.ini")) result = UserConfigA.PrefsIni;
-	else if (SR_AreCaseInsensitiveEqualA(fileName, "plugins.txt")) result = UserConfigA.Plugins;
+
+	const char* test = SR_ToUpperAndBackwardsA(input);
+
+	if (SR_FindPathSubstringA(test, "\\MY GAMES\\SKYRIM\\SKYRIM.INI")) result = UserConfigA.Ini;
+	else if (SR_FindPathSubstringA(test, "\\MY GAMES\\SKYRIM\\SKYRIMPREFS.INI")) result = UserConfigA.PrefsIni;
+	else if (SR_FindPathSubstringA(test, "\\APPDATA\\LOCAL\\SKYRIM\\PLUGINS.TXT")) result = UserConfigA.Plugins;
+
+	free ((void*)test);
 
 	return result;
 }
