@@ -21,6 +21,57 @@ static struct
 	char* Plugins;
 } UserConfigA;
 
+// Canonicizes a wide path, transforming it into an absolute path with no '.' or '..' nodes and in all uppercase
+// The returned string is allocated dynamically and must be freed.
+static const wchar_t* CanonicizeW(const wchar_t* path)
+{
+	// GetFullPathName returns the required buffer size if the buffer is too small (in this case, size 0)
+	const DWORD canonicizedSize = GetFullPathNameW(path, 0, NULL, NULL);
+	const wchar_t* canonicized = calloc(canonicizedSize, sizeof(wchar_t));
+	const DWORD canonicizedLen = GetFullPathNameW(path, canonicizedSize, canonicized, NULL);
+
+	// In-place uppercase path
+	_wcsupr_s_l(canonicized, canonicizedSize, SR_GetInvariantLocale());
+
+	return canonicized;
+}
+
+// Canonicizes a narrow path, transforming it into an absolute path with no '.' or '..' nodes and in all uppercase
+// The returned string is allocated dynamically and must be freed.
+static const char* CanonicizeA(const char* path)
+{
+	// GetFullPathName returns the required buffer size if the buffer is too small (in this case, size 0)
+	const DWORD canonicizedSize = GetFullPathNameA(path, 0, NULL, NULL);
+	const char* canonicized = calloc(canonicizedSize, sizeof(char));
+	const DWORD canonicizedLen = GetFullPathNameA(path, canonicizedSize, canonicized, NULL);
+
+	// In-place uppercase path
+	_strupr_s_l(canonicized, canonicizedSize, SR_GetInvariantLocale());
+
+	return canonicized;
+}
+
+// Checks if the canonical version of a wide path ends with a specified wide string.
+static const bool CanonicalEndsWithW(const wchar_t* path, const wchar_t* component)
+{
+	const wchar_t* canonical = CanonicizeW(path);
+
+	bool result = SR_EndsWithW(canonical, component);
+
+	free(canonical);
+	return result;
+}
+
+// Checks if the canonical version of a narrow path ends with a specified narrow string.
+static const bool CanonicalEndsWithA(const char* path, const char* component)
+{
+	const char* canonical = CanonicizeA(path);
+
+	bool result = SR_EndsWithA(canonical, component);
+
+	free(canonical);
+	return result;
+}
 
 // Tries to redirect a wide path. If the path can't be redirected, it is returned unchanged.
 // The returned string does not need to be freed.
@@ -28,12 +79,26 @@ static const wchar_t* TryRedirectW(const wchar_t* input)
 {
 	const wchar_t* fileName = SR_GetFileNameW(input);
 
-	const wchar_t* result = input;
-	if (SR_AreCaseInsensitiveEqualW(fileName, L"Skyrim.ini")) result = SR_GetUserConfig()->Redirection.Ini;
-	else if (SR_AreCaseInsensitiveEqualW(fileName, L"SkyrimPrefs.ini")) result = SR_GetUserConfig()->Redirection.PrefsIni;
-	else if (SR_AreCaseInsensitiveEqualW(fileName, L"plugins.txt")) result = SR_GetUserConfig()->Redirection.Plugins;
+	// Canonicizing a path is expensive
+	// Match the file name first to avoid canonicizing a path whenever possible
 
-	return result;
+	if (SR_AreCaseInsensitiveEqualW(fileName, L"SKYRIM.INI"))
+	{
+		if (CanonicalEndsWithW(input, L"MY GAMES\\SKYRIM\\SKYRIM.INI"))
+			return SR_GetUserConfig()->Redirection.Ini;
+	}
+	else if (SR_AreCaseInsensitiveEqualW(fileName, L"SKYRIMPREFS.INI"))
+	{
+		if (CanonicalEndsWithW(input, L"MY GAMES\\SKYRIM\\SKYRIMPREFS.INI"))
+			return SR_GetUserConfig()->Redirection.PrefsIni;
+	}
+	else if (SR_AreCaseInsensitiveEqualW(fileName, L"PLUGINS.TXT"))
+	{
+		if (CanonicalEndsWithW(input, L"APPDATA\\LOCAL\\SKYRIM\\PLUGINS.TXT"))
+			return SR_GetUserConfig()->Redirection.Plugins;
+	}
+
+	return input;
 }
 
 // Tries to redirect a narrow path. If the path can't be redirected, it is returned unchanged.
@@ -42,12 +107,26 @@ static const char* TryRedirectA(const char* input)
 {
 	const char* fileName = SR_GetFileNameA(input);
 
-	const char* result = input;
-	if (SR_AreCaseInsensitiveEqualA(fileName, "Skyrim.ini")) result = UserConfigA.Ini;
-	else if (SR_AreCaseInsensitiveEqualA(fileName, "SkyrimPrefs.ini")) result = UserConfigA.PrefsIni;
-	else if (SR_AreCaseInsensitiveEqualA(fileName, "plugins.txt")) result = UserConfigA.Plugins;
+	// Canonicizing a path is expensive
+	// Match the file name first to avoid canonicizing a path whenever possible
 
-	return result;
+	if (SR_AreCaseInsensitiveEqualA(fileName, "SKYRIM.INI"))
+	{
+		if (CanonicalEndsWithA(input, "MY GAMES\\SKYRIM\\SKYRIM.INI"))
+			return UserConfigA.Ini;
+	}
+	else if (SR_AreCaseInsensitiveEqualA(fileName, "SKYRIMPREFS.INI"))
+	{
+		if (CanonicalEndsWithA(input, "MY GAMES\\SKYRIM\\SKYRIMPREFS.INI"))
+			return UserConfigA.PrefsIni;
+	}
+	else if (SR_AreCaseInsensitiveEqualA(fileName, "PLUGINS.TXT"))
+	{
+		if (CanonicalEndsWithA(input, "APPDATA\\LOCAL\\SKYRIM\\PLUGINS.TXT"))
+			return UserConfigA.Plugins;
+	}
+
+	return input;
 }
 /*
 +==================================================================+

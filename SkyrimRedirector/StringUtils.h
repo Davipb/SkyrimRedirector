@@ -38,3 +38,13 @@ bool SR_AreCaseInsensitiveEqualA(const char* first, const char* second);
 // Concatenates multiple strings. All arguments must be of type const wchar_t*.
 // The returned string is allocated dynamically and must be freed.
 wchar_t* SR_Concat(size_t count, ...);
+
+// Checks if a wide string ends with another wide string.
+// full: The full string
+// component: The string that should be at the end of the full string
+bool SR_EndsWithW(const wchar_t* full, const wchar_t* component);
+
+// Checks if a narrow string ends with another narrow string.
+// full: The full string
+// component: The string that should be at the end of the full string
+bool SR_EndsWithA(const wchar_t* full, const wchar_t* component);

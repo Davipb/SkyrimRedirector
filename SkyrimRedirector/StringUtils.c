@@ -109,3 +109,47 @@ wchar_t* SR_Concat(size_t count, ...)
 
 	return result;
 }
+
+bool SR_EndsWithW(const wchar_t* full, const wchar_t* component)
+{
+	// Get a pointer to the last character of each string (right before the null terminator)
+	wchar_t* fullCurrent = &full[wcslen(full) - 1];
+	wchar_t* componentCurrent = &component[wcslen(component) - 1];
+
+	// Check each string backwards until one of them runs out
+	// If any character is different, the path doesn't end with the expected component
+	while (fullCurrent != full && componentCurrent != component)
+	{
+		if (*fullCurrent != *componentCurrent)
+			return false;
+
+		fullCurrent--;
+		componentCurrent--;
+	}
+
+	// If the path ran out before the expected component, it is shorter than the expected component,
+	// which means the path doesn't end with the component
+	return componentCurrent == component;
+}
+
+bool SR_EndsWithA(const char* full, const char* component)
+{
+	// Get a pointer to the last character of each string (right before the null terminator)
+	char* fullCurrent = &full[strlen(full) - 1];
+	char* componentCurrent = &component[strlen(component) - 1];
+
+	// Check each string backwards until one of them runs out
+	// If any character is different, the path doesn't end with the expected component
+	while (fullCurrent != full && componentCurrent != component)
+	{
+		if (*fullCurrent != *componentCurrent)
+			return false;
+
+		fullCurrent--;
+		componentCurrent--;
+	}
+
+	// If the path ran out before the expected component, it is shorter than the expected component,
+	// which means the path doesn't end with the component
+	return componentCurrent == component;
+}
