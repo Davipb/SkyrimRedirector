@@ -3,6 +3,7 @@
 #include "StringUtils.h"
 #include "Logging.h"
 #include <stdlib.h>
+#include <stdbool.h>
 #include <ShlObj.h>
 #include <Windows.h>
 
@@ -202,6 +203,35 @@ static const wchar_t* SR_LogLevelToLogString(uint8_t level)
 	return L"OFF";
 }
 
+// Checks if a file is valid, that is, it exists  and is not a directory
+static bool SR_IsFileValid(const wchar_t* name)
+{
+	DWORD attr = GetFileAttributesW(name);
+	if (attr == INVALID_FILE_ATTRIBUTES) return false;
+
+	return (attr & FILE_ATTRIBUTE_DIRECTORY) == 0;
+}
+
+// Validates a file stored in a variable, automatically resetting it to the default value if it
+// is invalid
+//  name: The user-friendly name of this file
+//  storage: A pointer to where the path of the file is stored.
+//  getDefault: A pointer to a function that returns the default path of the file.
+static void SR_ValidateFile(const wchar_t* name, wchar_t** storage, wchar_t*(*getDefault)())
+{
+	if (SR_IsFileValid(*storage)) return;
+
+	SR_WARN("%ls path '%ls' doesn't exist, trying to regenerate it", name, *storage);
+
+	free(*storage);
+	*storage = getDefault();
+
+	SR_DEBUG("Regenerated %ls path to '%ls'", name, *storage);
+		
+	if (!SR_IsFileValid(*storage))
+		SR_ERROR("%ls path '%ls' is still invalid even after regeneration, redirections will fail", name, *storage);
+}
+
 static SR_UserConfig* UserConfig = NULL;
 
 // Saves the values currently stored in UserConfig to the .ini file
@@ -285,6 +315,18 @@ SR_UserConfig* SR_GetUserConfig()
 {
 	if (UserConfig == NULL) SR_LoadConfig();
 	return UserConfig;
+}
+
+void SR_ValidateUserConfig()
+{
+	if (UserConfig == NULL) SR_LoadConfig();
+
+	SR_ValidateFile(L"Log File",  &UserConfig->Logging.File,         &SR_GetDefaultLogFile             );
+	SR_ValidateFile(L"Ini",       &UserConfig->Redirection.Ini,      &SR_GetDefaultRedirectionIni      );
+	SR_ValidateFile(L"Prefs Ini", &UserConfig->Redirection.PrefsIni, &SR_GetDefaultRedirectionPrefsIni );
+	SR_ValidateFile(L"Plugins",   &UserConfig->Redirection.Plugins,  &SR_GetDefaultRedirectionPlugins  );
+
+	SR_SaveUserConfig();
 }
 
 void SR_FreeUserConfig()

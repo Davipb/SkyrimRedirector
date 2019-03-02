@@ -25,6 +25,10 @@ typedef struct
 // Gets the current UserConfig
 SR_UserConfig* SR_GetUserConfig();
 
+// Validates the current UserConfig, checking if its files and values
+// are correct, and automatically correcting them if they aren't
+void SR_ValidateUserConfig();
+
 // Frees all resources allocated to the user config
 // Any pointers returned by SR_GetUserConfig() must be considered invalid 
 // after this function is called.

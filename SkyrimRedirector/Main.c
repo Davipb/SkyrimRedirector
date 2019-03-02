@@ -25,6 +25,7 @@ __declspec(dllexport) bool SKSEPlugin_Load(const SKSEInterface* skse)
 	SR_StartLogging();
 	SR_DEBUG("SKSE load request received");
 
+	SR_ValidateUserConfig();
 	return SR_AttachRedirector();
 }
 
