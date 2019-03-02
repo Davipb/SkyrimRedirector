@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 **Enderal Version:** None
 
 ### Added
+* This changelog
 * The file paths configured in SkyrimRedirector.ini are now checked during startup. If they are invalid, the paths are regenerated as if the .ini file didn't exist.
 
 ## [1.1.0] - 2019-02-17
@@ -18,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 1.0.0 - 2018-10-21
 **Enderal Version:** 1.5.0.0
+
 Initial Release
 
 [Unreleased]: https://github.com/Davipb/SkyrimRedirector/compare/v1.1.0...HEAD
