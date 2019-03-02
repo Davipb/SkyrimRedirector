@@ -1,3 +1,4 @@
+#include "SR_Base.h"
 #include "PluginAPI.h"
 #include "Logging.h"
 #include "Redirector.h"

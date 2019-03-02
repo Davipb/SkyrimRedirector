@@ -22,7 +22,10 @@ typedef struct
 
 } SR_UserConfig;
 
-const SR_UserConfig* SR_GetUserConfig();
+// Gets the current UserConfig
+SR_UserConfig* SR_GetUserConfig();
+
+// Frees all resources allocated to the user config
+// Any pointers returned by SR_GetUserConfig() must be considered invalid 
+// after this function is called.
 void SR_FreeUserConfig();
-
-

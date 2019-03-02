@@ -1,3 +1,4 @@
+#include "SR_Base.h"
 #include "Logging.h"
 #include "Config.h"
 #include "StringUtils.h"
@@ -112,6 +113,3 @@ void SR_Log(uint8_t level, const wchar_t* message, ...)
 	WriteFile(LogFile, result, strlen(result), &bytesWritten, NULL);
 	free(result);
 }
-
-#undef SR_LOG_LEVEL
-#undef SR_LOG_FILE_NAME

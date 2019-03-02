@@ -1,3 +1,4 @@
+#include "SR_Base.h"
 #include "StringUtils.h"
 #include "Logging.h"
 #include <stdlib.h>
@@ -113,8 +114,8 @@ wchar_t* SR_Concat(size_t count, ...)
 bool SR_EndsWithW(const wchar_t* full, const wchar_t* component)
 {
 	// Get a pointer to the last character of each string (right before the null terminator)
-	wchar_t* fullCurrent = &full[wcslen(full) - 1];
-	wchar_t* componentCurrent = &component[wcslen(component) - 1];
+	const wchar_t* fullCurrent = &full[wcslen(full) - 1];
+	const wchar_t* componentCurrent = &component[wcslen(component) - 1];
 
 	// Check each string backwards until one of them runs out
 	// If any character is different, the path doesn't end with the expected component
@@ -135,8 +136,8 @@ bool SR_EndsWithW(const wchar_t* full, const wchar_t* component)
 bool SR_EndsWithA(const char* full, const char* component)
 {
 	// Get a pointer to the last character of each string (right before the null terminator)
-	char* fullCurrent = &full[strlen(full) - 1];
-	char* componentCurrent = &component[strlen(component) - 1];
+	const char* fullCurrent = &full[strlen(full) - 1];
+	const char* componentCurrent = &component[strlen(component) - 1];
 
 	// Check each string backwards until one of them runs out
 	// If any character is different, the path doesn't end with the expected component

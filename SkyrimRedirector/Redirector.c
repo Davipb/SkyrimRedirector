@@ -1,3 +1,4 @@
+#include "SR_Base.h"
 #include "Redirector.h"
 #include "Redirections.h"
 #include "Logging.h"

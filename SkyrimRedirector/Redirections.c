@@ -1,3 +1,4 @@
+#include "SR_Base.h"
 #include "Redirections.h"
 #include "Logging.h"
 #include "StringUtils.h"
@@ -23,12 +24,12 @@ static struct
 
 // Canonicizes a wide path, transforming it into an absolute path with no '.' or '..' nodes and in all uppercase
 // The returned string is allocated dynamically and must be freed.
-static const wchar_t* CanonicizeW(const wchar_t* path)
+static wchar_t* CanonicizeW(const wchar_t* path)
 {
 	// GetFullPathName returns the required buffer size if the buffer is too small (in this case, size 0)
 	const DWORD canonicizedSize = GetFullPathNameW(path, 0, NULL, NULL);
-	const wchar_t* canonicized = calloc(canonicizedSize, sizeof(wchar_t));
-	const DWORD canonicizedLen = GetFullPathNameW(path, canonicizedSize, canonicized, NULL);
+	wchar_t* canonicized = calloc(canonicizedSize, sizeof(wchar_t));
+	GetFullPathNameW(path, canonicizedSize, canonicized, NULL);
 
 	// In-place uppercase path
 	_wcsupr_s_l(canonicized, canonicizedSize, SR_GetInvariantLocale());
@@ -38,12 +39,12 @@ static const wchar_t* CanonicizeW(const wchar_t* path)
 
 // Canonicizes a narrow path, transforming it into an absolute path with no '.' or '..' nodes and in all uppercase
 // The returned string is allocated dynamically and must be freed.
-static const char* CanonicizeA(const char* path)
+static char* CanonicizeA(const char* path)
 {
 	// GetFullPathName returns the required buffer size if the buffer is too small (in this case, size 0)
 	const DWORD canonicizedSize = GetFullPathNameA(path, 0, NULL, NULL);
-	const char* canonicized = calloc(canonicizedSize, sizeof(char));
-	const DWORD canonicizedLen = GetFullPathNameA(path, canonicizedSize, canonicized, NULL);
+	char* canonicized = calloc(canonicizedSize, sizeof(char));
+	GetFullPathNameA(path, canonicizedSize, canonicized, NULL);
 
 	// In-place uppercase path
 	_strupr_s_l(canonicized, canonicizedSize, SR_GetInvariantLocale());
@@ -52,9 +53,9 @@ static const char* CanonicizeA(const char* path)
 }
 
 // Checks if the canonical version of a wide path ends with a specified wide string.
-static const bool CanonicalEndsWithW(const wchar_t* path, const wchar_t* component)
+static bool CanonicalEndsWithW(const wchar_t* path, const wchar_t* component)
 {
-	const wchar_t* canonical = CanonicizeW(path);
+	wchar_t* canonical = CanonicizeW(path);
 
 	bool result = SR_EndsWithW(canonical, component);
 
@@ -63,9 +64,9 @@ static const bool CanonicalEndsWithW(const wchar_t* path, const wchar_t* compone
 }
 
 // Checks if the canonical version of a narrow path ends with a specified narrow string.
-static const bool CanonicalEndsWithA(const char* path, const char* component)
+static bool CanonicalEndsWithA(const char* path, const char* component)
 {
-	const char* canonical = CanonicizeA(path);
+	char* canonical = CanonicizeA(path);
 
 	bool result = SR_EndsWithA(canonical, component);
 

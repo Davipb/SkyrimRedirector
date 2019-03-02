@@ -46,7 +46,7 @@
       <CompileAs>CompileAsC</CompileAs>
       <PreprocessorDefinitions>NTDDI_VERSION=0x06000000;WINVER=0x0600;_WIN32_WINNT=0x0600;WIN32_LEAN_AND_MEAN;STRICT;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <TreatWarningAsError>false</TreatWarningAsError>
+      <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
       <DiagnosticsFormat>Column</DiagnosticsFormat>
@@ -70,7 +70,7 @@
       <PreprocessorDefinitions>NTDDI_VERSION=0x06000000;WINVER=0x0600;_WIN32_WINNT=0x0600;WIN32_LEAN_AND_MEAN;STRICT;RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <DebugInformationFormat>None</DebugInformationFormat>
-      <TreatWarningAsError>false</TreatWarningAsError>
+      <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
       <DiagnosticsFormat>Column</DiagnosticsFormat>
@@ -89,6 +89,7 @@
     <ClInclude Include="Redirections.h" />
     <ClInclude Include="Redirector.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="SR_Base.h" />
     <ClInclude Include="StringUtils.h" />
     <ClCompile Include="Config.c" />
     <ClCompile Include="Logging.c" />

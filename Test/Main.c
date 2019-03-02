@@ -80,7 +80,7 @@ bool FileInformationEquals(BY_HANDLE_FILE_INFORMATION* a, BY_HANDLE_FILE_INFORMA
 wchar_t* FormatLastError()
 {
 	DWORD error = GetLastError();
-	if (error == NO_ERROR) return;
+	if (error == NO_ERROR) return NULL;
 
 	wchar_t* message;
 	FormatMessageW(
@@ -227,6 +227,7 @@ bool ExecuteTests()
 		wprintf_s(L"Redirector is not working properly\n");
 
 	SetConsoleTextAttribute(StdOut, FOREGROUND_NORMAL);
+	return true;
 }
 
 bool LoadInfo(const KNOWNFOLDERID* const refid, const wchar_t* const suffix, BY_HANDLE_FILE_INFORMATION* output)
@@ -260,6 +261,7 @@ bool Execute()
 
 	TRY(LoadOriginals());
 	TRY(ExecuteTests());
+	return true;
 }
 
 void main()

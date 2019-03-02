@@ -1,3 +1,4 @@
+#include "SR_Base.h"
 #include "Config.h"
 #include "StringUtils.h"
 #include "Logging.h"
@@ -131,13 +132,13 @@ static wchar_t* SR_GetDefaultLogFile()
 // The returned string is allocated dynamically and must be freed.
 static wchar_t* SR_GetKnownFolder(const KNOWNFOLDERID* const rfid)
 {
-	wchar_t* documentsPath;
-	SHGetKnownFolderPath(rfid, 0, NULL, &documentsPath);
+	wchar_t* folderPath;
+	SHGetKnownFolderPath(rfid, 0, NULL, &folderPath);
 
 	// Copy to a standard C-duplicated string to allow the caller to free this string with `free`
 	// instead of CoTaskMemFree
-	wchar_t* result = _wcsdup(documentsPath);
-	CoTaskMemFree(documentsPath);
+	wchar_t* result = _wcsdup(folderPath);
+	CoTaskMemFree(folderPath);
 
 	return result;
 }
@@ -178,6 +179,7 @@ static wchar_t* SR_GetDefaultRedirectionPlugins()
 	return result;
 }
 
+// Transforms a textual log level info an integer log level
 static uint8_t SR_LogStringToLogLevel(const wchar_t* level)
 {
 	if (SR_AreCaseInsensitiveEqualW(level, L"TRACE")) return SR_LOG_LEVEL_TRACE;
@@ -188,7 +190,40 @@ static uint8_t SR_LogStringToLogLevel(const wchar_t* level)
 	return SR_LOG_LEVEL_OFF;
 }
 
+// Transforms an integer log level into a textual log level
+// The returned string is static and doesn't need to be freed.
+static const wchar_t* SR_LogLevelToLogString(uint8_t level)
+{
+	if (level == SR_LOG_LEVEL_TRACE) return L"TRACE";
+	if (level == SR_LOG_LEVEL_DEBUG) return L"DEBUG";
+	if (level == SR_LOG_LEVEL_INFO) return L"INFO";
+	if (level == SR_LOG_LEVEL_WARN) return L"WARN";
+	if (level == SR_LOG_LEVEL_ERROR) return L"ERROR";
+	return L"OFF";
+}
+
 static SR_UserConfig* UserConfig = NULL;
+
+// Saves the values currently stored in UserConfig to the .ini file
+static void SR_SaveUserConfig()
+{
+	if (UserConfig == NULL) return;
+	wchar_t* configFile = SR_GetConfigFile();
+
+	WritePrivateProfileStringW(L"Logging", L"File", UserConfig->Logging.File, configFile);
+	WritePrivateProfileStringW(L"Logging", L"Level", SR_LogLevelToLogString(UserConfig->Logging.Level), configFile);
+
+	if (UserConfig->Logging.Append)
+		WritePrivateProfileStringW(L"Logging", L"Append", L"TRUE", configFile);
+	else
+		WritePrivateProfileStringW(L"Logging", L"Append", L"FALSE", configFile);
+
+	WritePrivateProfileStringW(L"Redirection", L"Ini", UserConfig->Redirection.Ini, configFile);
+	WritePrivateProfileStringW(L"Redirection", L"PrefsIni", UserConfig->Redirection.PrefsIni, configFile);
+	WritePrivateProfileStringW(L"Redirection", L"Plugins", UserConfig->Redirection.Plugins, configFile);
+
+	free(configFile);
+}
 
 /*
 
@@ -204,14 +239,11 @@ It does the following:
 
   2. If `read` is null, call the specified default value generator and assign it to read.
 
-  3. Write the value of `read` to `configFile`, at the specified section and key.
-
 */
 #define READOR(section, key, default) \
 	read = SR_ReadIniString(L##section, L##key, configFile); \
 	if (read == NULL) \
-		read = default; \
-	WritePrivateProfileStringW(L##section, L##key, read, configFile)
+		read = default;
 
 static void SR_LoadConfig()
 {
@@ -243,11 +275,13 @@ static void SR_LoadConfig()
 	UserConfig->Redirection.Plugins = read;
 	
 	free(configFile);
+
+	SR_SaveUserConfig();
 }
 
 #undef READOR
 
-const SR_UserConfig* SR_GetUserConfig()
+SR_UserConfig* SR_GetUserConfig()
 {
 	if (UserConfig == NULL) SR_LoadConfig();
 	return UserConfig;

@@ -47,4 +47,4 @@ bool SR_EndsWithW(const wchar_t* full, const wchar_t* component);
 // Checks if a narrow string ends with another narrow string.
 // full: The full string
 // component: The string that should be at the end of the full string
-bool SR_EndsWithA(const wchar_t* full, const wchar_t* component);
+bool SR_EndsWithA(const char* full, const char* component);
