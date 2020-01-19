@@ -32,6 +32,10 @@
 // The default file path to where plugins.txt will be redirected, relative to the Local AppData folder.
 #define SR_DEFAULT_REDIRECTION_PLUGINS L"\\Enderal\\plugins.txt"
 
+// The originak file path of plugins.txt relative to the Local AppData folder.
+#define SR_DEFAULT_ORIGINAL_PLUGINS L"\\Skyrim\\plugins.txt"
+
+
 
 // Reads a string stored in a .ini fully
 // If the specified key doesn't exist, this returns null.
@@ -180,6 +184,38 @@ static wchar_t* SR_GetDefaultRedirectionPlugins()
 	return result;
 }
 
+static wchar_t* strip_path(wchar_t* input) {
+	size_t len = wcslen(input);
+	size_t num_slash = 0;
+	size_t new_len = 0;
+	size_t idx = 0;
+	for (idx = len; idx > 0; idx--) {
+		if (input[idx - 1] == L'\\') {
+			num_slash++;
+		}
+		if (num_slash == 4) break;
+	}
+	new_len = len - idx + 1;  //Last is NULL byte
+	wmemmove(input, input + idx,  new_len);
+//	input[new_len] = L'\0';
+	input = realloc(input, new_len  * sizeof(wchar_t));
+	_wcsupr_s_l(input, new_len , SR_GetInvariantLocale());
+	return input;
+}
+
+
+static wchar_t* SR_GetDefaultOriginalPlugins()
+{
+	wchar_t* documentsPath = SR_GetKnownFolder(&FOLDERID_LocalAppData);
+
+	wchar_t* result = SR_Concat(2, documentsPath, SR_DEFAULT_ORIGINAL_PLUGINS);
+	free(documentsPath);
+	return 	strip_path(result);
+
+}
+
+
+
 // Transforms a textual log level info an integer log level
 static uint8_t SR_LogStringToLogLevel(const wchar_t* level)
 {
@@ -232,6 +268,17 @@ static void SR_ValidateFile(const wchar_t* name, wchar_t** storage, wchar_t*(*ge
 		SR_ERROR("%ls path '%ls' is still invalid even after regeneration, redirections will fail", name, *storage);
 }
 
+static void SR_ObtainDefaultIfInvalid(const wchar_t* name, wchar_t** storage, wchar_t* (*getDefault)()) {
+	if (SR_IsFileValid(*storage)) return;
+	SR_WARN("%ls path '%ls' doesn't exist, regenerate it", name, *storage);
+	//Rationale. Path AppData\\Skyrim\\plugins.txt may not exist if only Enderal or other detached install 
+	//exist. However force default to avoid issue with manually inserting a wrong path in the INI or 
+	//OS changes.
+	if (*storage != NULL) free(*storage);
+	*storage = getDefault();
+	SR_DEBUG("Regenerated %ls path to '%ls'", name, *storage);
+}
+
 static SR_UserConfig* UserConfig = NULL;
 
 // Saves the values currently stored in UserConfig to the .ini file
@@ -251,6 +298,7 @@ static void SR_SaveUserConfig()
 	WritePrivateProfileStringW(L"Redirection", L"Ini", UserConfig->Redirection.Ini, configFile);
 	WritePrivateProfileStringW(L"Redirection", L"PrefsIni", UserConfig->Redirection.PrefsIni, configFile);
 	WritePrivateProfileStringW(L"Redirection", L"Plugins", UserConfig->Redirection.Plugins, configFile);
+	WritePrivateProfileStringW(L"Redirection", L"AppData", UserConfig->Redirection.AppDataDir, configFile);
 
 	free(configFile);
 }
@@ -304,6 +352,9 @@ static void SR_LoadConfig()
 	READOR("Redirection", "Plugins", SR_GetDefaultRedirectionPlugins());
 	UserConfig->Redirection.Plugins = read;
 	
+	READOR("Redirection", "AppData", SR_GetDefaultOriginalPlugins());
+	UserConfig->Redirection.AppDataDir = read;
+	
 	free(configFile);
 
 	SR_SaveUserConfig();
@@ -321,11 +372,11 @@ void SR_ValidateUserConfig()
 {
 	if (UserConfig == NULL) SR_LoadConfig();
 
-	SR_ValidateFile(L"Log File",  &UserConfig->Logging.File,         &SR_GetDefaultLogFile             );
-	SR_ValidateFile(L"Ini",       &UserConfig->Redirection.Ini,      &SR_GetDefaultRedirectionIni      );
-	SR_ValidateFile(L"Prefs Ini", &UserConfig->Redirection.PrefsIni, &SR_GetDefaultRedirectionPrefsIni );
-	SR_ValidateFile(L"Plugins",   &UserConfig->Redirection.Plugins,  &SR_GetDefaultRedirectionPlugins  );
-
+	SR_ValidateFile(L"Log File",  &UserConfig->Logging.File,          &SR_GetDefaultLogFile             );
+	SR_ValidateFile(L"Ini",       &UserConfig->Redirection.Ini,       &SR_GetDefaultRedirectionIni      );
+	SR_ValidateFile(L"Prefs Ini", &UserConfig->Redirection.PrefsIni,  &SR_GetDefaultRedirectionPrefsIni );
+	SR_ValidateFile(L"Plugins",   &UserConfig->Redirection.Plugins,   &SR_GetDefaultRedirectionPlugins  );
+	SR_ObtainDefaultIfInvalid(L"AppData",   &UserConfig->Redirection.AppDataDir,&SR_GetDefaultOriginalPlugins     );
 	SR_SaveUserConfig();
 }
 
@@ -338,7 +389,8 @@ void SR_FreeUserConfig()
 	free(UserConfig->Redirection.Ini);
 	free(UserConfig->Redirection.PrefsIni);
 	free(UserConfig->Redirection.Plugins);
-
+	free(UserConfig->Redirection.AppDataDir);
+    
 	free(UserConfig);
 	UserConfig = NULL;
 }
