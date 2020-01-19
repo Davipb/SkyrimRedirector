@@ -17,7 +17,7 @@ typedef struct
 		wchar_t* Ini;
 		wchar_t* PrefsIni;
 		wchar_t* Plugins;
-		wchar_t* AppDataDir;
+
 	} Redirection;
 
 } SR_UserConfig;

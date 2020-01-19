@@ -83,6 +83,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="WindowsUtils.c" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="Logging.h" />
     <ClInclude Include="PluginAPI.h" />
@@ -97,6 +98,7 @@
     <ClCompile Include="Redirections.c" />
     <ClCompile Include="Redirector.c" />
     <ClCompile Include="StringUtils.c" />
+    <ClInclude Include="WindowsUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Detours\Detours.vcxproj">

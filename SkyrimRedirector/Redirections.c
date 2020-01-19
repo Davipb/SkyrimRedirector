@@ -3,6 +3,8 @@
 #include "Logging.h"
 #include "StringUtils.h"
 #include "Config.h"
+#include "WindowsUtils.h"
+
 #include <ShlObj.h>
 #include <stdbool.h>
 
@@ -20,43 +22,19 @@ static struct
 	char* Ini;
 	char* PrefsIni;
 	char* Plugins;
-	char* AppDataDir;
+
 } UserConfigA;
 
-// Canonicizes a wide path, transforming it into an absolute path with no '.' or '..' nodes and in all uppercase
-// The returned string is allocated dynamically and must be freed.
-static wchar_t* CanonicizeW(const wchar_t* path)
-{
-	// GetFullPathName returns the required buffer size if the buffer is too small (in this case, size 0)
-	const DWORD canonicizedSize = GetFullPathNameW(path, 0, NULL, NULL);
-	wchar_t* canonicized = calloc(canonicizedSize, sizeof(wchar_t));
-	GetFullPathNameW(path, canonicizedSize, canonicized, NULL);
+// Narrow version of the canonicized path Skyrim will use to search for plugins.txt
+static char* SkyrimPluginsPathA = NULL;
+// Wide version of the canonicized path Skyrim will use to search for plugins.txt
+static wchar_t* SkyrimPluginsPathW = NULL;
 
-	// In-place uppercase path
-	_wcsupr_s_l(canonicized, canonicizedSize, SR_GetInvariantLocale());
-
-	return canonicized;
-}
-
-// Canonicizes a narrow path, transforming it into an absolute path with no '.' or '..' nodes and in all uppercase
-// The returned string is allocated dynamically and must be freed.
-static char* CanonicizeA(const char* path)
-{
-	// GetFullPathName returns the required buffer size if the buffer is too small (in this case, size 0)
-	const DWORD canonicizedSize = GetFullPathNameA(path, 0, NULL, NULL);
-	char* canonicized = calloc(canonicizedSize, sizeof(char));
-	GetFullPathNameA(path, canonicizedSize, canonicized, NULL);
-
-	// In-place uppercase path
-	_strupr_s_l(canonicized, canonicizedSize, SR_GetInvariantLocale());
-
-	return canonicized;
-}
 
 // Checks if the canonical version of a wide path ends with a specified wide string.
 static bool CanonicalEndsWithW(const wchar_t* path, const wchar_t* component)
 {
-	wchar_t* canonical = CanonicizeW(path);
+	wchar_t* canonical = SR_CanonicizePathW(path);
 
 	bool result = SR_EndsWithW(canonical, component);
 
@@ -67,9 +45,31 @@ static bool CanonicalEndsWithW(const wchar_t* path, const wchar_t* component)
 // Checks if the canonical version of a narrow path ends with a specified narrow string.
 static bool CanonicalEndsWithA(const char* path, const char* component)
 {
-	char* canonical = CanonicizeA(path);
+	char* canonical = SR_CanonicizePathA(path);
 
 	bool result = SR_EndsWithA(canonical, component);
+
+	free(canonical);
+	return result;
+}
+
+// Checks if the canonical version of a wide path is equal to a specified wide string
+static bool CanonicalEqualsW(const wchar_t* path, const wchar_t* other)
+{
+	wchar_t* canonical = SR_CanonicizePathW(path);
+
+	bool result = wcscmp(canonical, other) == 0;
+
+	free(canonical);
+	return result;
+}
+
+// Checks if the canonical version of a narrow path is equal to a specified narrow string
+static bool CanonicalEqualsA(const char* path, const char* other)
+{
+	char* canonical = SR_CanonicizePathA(path);
+
+	bool result = strcmp(canonical, other) == 0;
 
 	free(canonical);
 	return result;
@@ -96,7 +96,7 @@ static const wchar_t* TryRedirectW(const wchar_t* input)
 	}
 	else if (SR_AreCaseInsensitiveEqualW(fileName, L"PLUGINS.TXT"))
 	{
-		if (CanonicalEndsWithW(input, SR_GetUserConfig()->Redirection.AppDataDir))
+		if (CanonicalEqualsW(input, SkyrimPluginsPathW))
 			return SR_GetUserConfig()->Redirection.Plugins;
 	}
 
@@ -114,21 +114,18 @@ static const char* TryRedirectA(const char* input)
 
 	if (SR_AreCaseInsensitiveEqualA(fileName, "SKYRIM.INI"))
 	{
-		if (CanonicalEndsWithA(input, "MY GAMES\\SKYRIM\\SKYRIM.INI")) {
-			return UserConfigA.Ini;
-		}
+		if (CanonicalEndsWithA(input, "MY GAMES\\SKYRIM\\SKYRIM.INI"))
+			return UserConfigA.Ini;		
 	}
 	else if (SR_AreCaseInsensitiveEqualA(fileName, "SKYRIMPREFS.INI"))
 	{
-		if (CanonicalEndsWithA(input, "MY GAMES\\SKYRIM\\SKYRIMPREFS.INI")) {
-			return UserConfigA.PrefsIni;
-		}
+		if (CanonicalEndsWithA(input, "MY GAMES\\SKYRIM\\SKYRIMPREFS.INI"))
+			return UserConfigA.PrefsIni;		
 	}
 	else if (SR_AreCaseInsensitiveEqualA(fileName, "PLUGINS.TXT"))
 	{
-		if (CanonicalEndsWithA(input, UserConfigA.AppDataDir)) {
-			return UserConfigA.Plugins;
-		}
+		if (CanonicalEqualsA(input, SkyrimPluginsPathA))
+			return UserConfigA.Plugins;		
 	}
 
 	return input;
@@ -427,18 +424,22 @@ REDIRECT(MoveFileWithProgressW, BOOL, LPCWSTR lpExistingFileName, LPCWSTR lpNewF
 // |                      End Redirect functions                      |
 // +==================================================================+
 
-static void CreateNewPaths()
+static void CreatePaths()
 {
 	const SR_UserConfig* config = SR_GetUserConfig();
-	SR_TRACE("Ini %ls", config->Redirection.Ini);
-	SR_TRACE("IniPref %ls", config->Redirection.PrefsIni);
-	SR_TRACE("Plugins %ls", config->Redirection.Plugins);
-	SR_TRACE("AppData %ls", config->Redirection.AppDataDir);
 
 	UserConfigA.Ini = SR_Utf16ToCodepage(config->Redirection.Ini);
 	UserConfigA.PrefsIni = SR_Utf16ToCodepage(config->Redirection.PrefsIni);
 	UserConfigA.Plugins = SR_Utf16ToCodepage(config->Redirection.Plugins);
-	UserConfigA.AppDataDir = SR_Utf16ToCodepage(config->Redirection.AppDataDir);
+
+	wchar_t* appData = SR_GetKnownFolder(&FOLDERID_LocalAppData);
+	wchar_t* uncanonicizedPath = SR_Concat(2, appData, L"\\SKYRIM\\PLUGINS.TXT");
+	SkyrimPluginsPathW = SR_CanonicizePathW(uncanonicizedPath);
+	free(uncanonicizedPath);
+
+	SkyrimPluginsPathA = SR_Utf16ToCodepage(SkyrimPluginsPathW);
+
+	free(appData);
 }
 
 static SR_Redirection* Redirections = NULL;
@@ -446,7 +447,7 @@ static SR_Redirection* Redirections = NULL;
 // Adds a WinAPI function redirection to the list of redirections.
 static void AddRedirection(PVOID* original, PVOID redirected, const wchar_t* name)
 {
-	SR_Redirection* current = current = calloc(1, sizeof(SR_Redirection));
+	SR_Redirection* current = calloc(1, sizeof(SR_Redirection));
 	current->Next = Redirections;
 
 	current->Original = original;
@@ -475,7 +476,7 @@ and W (Wide/Unicode) versions of a function.
 static void CreateRedirections()
 {
 	SR_FreeRedirections();
-	CreateNewPaths();
+	CreatePaths();
 
 	HMODULE kernel32 = GetModuleHandleW(L"kernel32");
 
@@ -515,7 +516,7 @@ SR_Redirection* SR_GetRedirections()
 	return Redirections;
 }
 
-static void FreeNewPaths()
+static void FreePaths()
 {
 	free(UserConfigA.Ini);
 	UserConfigA.Ini = NULL;
@@ -526,8 +527,11 @@ static void FreeNewPaths()
 	free(UserConfigA.Plugins);
 	UserConfigA.Plugins = NULL;
 
-	free(UserConfigA.AppDataDir);
-	UserConfigA.AppDataDir = NULL;
+	free(SkyrimPluginsPathW);
+	SkyrimPluginsPathW = NULL;
+
+	free(SkyrimPluginsPathA);
+	SkyrimPluginsPathA = NULL;
 
 }
 
@@ -540,5 +544,5 @@ void SR_FreeRedirections()
 		free(previous);
 	}
 
-	FreeNewPaths();
+	FreePaths();
 }
