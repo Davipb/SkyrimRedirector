@@ -115,17 +115,17 @@ static const char* TryRedirectA(const char* input)
 	if (SR_AreCaseInsensitiveEqualA(fileName, "SKYRIM.INI"))
 	{
 		if (CanonicalEndsWithA(input, "MY GAMES\\SKYRIM\\SKYRIM.INI"))
-			return UserConfigA.Ini;		
+			return UserConfigA.Ini;
 	}
 	else if (SR_AreCaseInsensitiveEqualA(fileName, "SKYRIMPREFS.INI"))
 	{
 		if (CanonicalEndsWithA(input, "MY GAMES\\SKYRIM\\SKYRIMPREFS.INI"))
-			return UserConfigA.PrefsIni;		
+			return UserConfigA.PrefsIni;
 	}
 	else if (SR_AreCaseInsensitiveEqualA(fileName, "PLUGINS.TXT"))
 	{
 		if (CanonicalEqualsA(input, SkyrimPluginsPathA))
-			return UserConfigA.Plugins;		
+			return UserConfigA.Plugins;
 	}
 
 	return input;

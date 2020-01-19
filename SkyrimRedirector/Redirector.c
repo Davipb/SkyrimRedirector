@@ -17,11 +17,11 @@ bool SR_AttachRedirector()
 		SR_WARN("Tried to attach redirections, but we are already attached. Ignoring.");
 		return true;
 	}
-	
+
 	Attached = true;
 
 	SR_DEBUG("Attaching all redirections");
-	
+
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
 
@@ -32,14 +32,14 @@ bool SR_AttachRedirector()
 		SR_TRACE("Attached %ls", current->Name);
 		current = current->Next;
 	}
-	
-	if (DetourTransactionCommit() != NO_ERROR) 
+
+	if (DetourTransactionCommit() != NO_ERROR)
 	{
 		SR_TRACE("Unable to commit transaction");
 		SR_ERROR("Unable to attach redirections, plugin failed to load");
 		return false;
 	}
-	
+
 	SR_TRACE("Transaction commited");
 	SR_INFO("Redirections attached successfully, plugin loaded");
 
@@ -78,5 +78,5 @@ bool SR_DetachRedirector()
 	}
 
 	SR_INFO("Redirections detached successfully, plugin unloaded");
-	return true;	
+	return true;
 }

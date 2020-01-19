@@ -205,7 +205,7 @@ static bool SR_IsFileValid(const wchar_t* name)
 //  name: The user-friendly name of this file
 //  storage: A pointer to where the path of the file is stored.
 //  getDefault: A pointer to a function that returns the default path of the file.
-static void SR_ValidateFile(const wchar_t* name, wchar_t** storage, wchar_t*(*getDefault)())
+static void SR_ValidateFile(const wchar_t* name, wchar_t** storage, wchar_t* (*getDefault)())
 {
 	if (SR_IsFileValid(*storage)) return;
 
@@ -215,7 +215,7 @@ static void SR_ValidateFile(const wchar_t* name, wchar_t** storage, wchar_t*(*ge
 	*storage = getDefault();
 
 	SR_DEBUG("Regenerated %ls path to '%ls'", name, *storage);
-		
+
 	if (!SR_IsFileValid(*storage))
 		SR_ERROR("%ls path '%ls' is still invalid even after regeneration, redirections will fail", name, *storage);
 }
@@ -251,7 +251,7 @@ This macro is to be used as follows:
   someVar = read;
 
 It does the following:
-	
+
   1. Call SR_ReadIniString with the variable `configFile` as the config file parameter
 	 and assign its return value to the variable `read`
 
@@ -278,7 +278,7 @@ static void SR_LoadConfig()
 	READOR("Logging", "Level", _wcsdup(SR_DEFAULT_LOG_LEVEL));
 	UserConfig->Logging.Level = SR_LogStringToLogLevel(read);
 	free(read);
-	
+
 	READOR("Logging", "Append", _wcsdup(L"TRUE"));
 	UserConfig->Logging.Append = SR_AreCaseInsensitiveEqualW(read, L"TRUE");
 	free(read);
@@ -291,7 +291,7 @@ static void SR_LoadConfig()
 
 	READOR("Redirection", "Plugins", SR_GetDefaultRedirectionPlugins());
 	UserConfig->Redirection.Plugins = read;
-	
+
 	free(configFile);
 
 	SR_SaveUserConfig();
@@ -309,10 +309,10 @@ void SR_ValidateUserConfig()
 {
 	if (UserConfig == NULL) SR_LoadConfig();
 
-	SR_ValidateFile(L"Log File",  &UserConfig->Logging.File,          &SR_GetDefaultLogFile             );
-	SR_ValidateFile(L"Ini",       &UserConfig->Redirection.Ini,       &SR_GetDefaultRedirectionIni      );
-	SR_ValidateFile(L"Prefs Ini", &UserConfig->Redirection.PrefsIni,  &SR_GetDefaultRedirectionPrefsIni );
-	SR_ValidateFile(L"Plugins",   &UserConfig->Redirection.Plugins,   &SR_GetDefaultRedirectionPlugins  );
+	SR_ValidateFile(L"Log File",  &UserConfig->Logging.File,         &SR_GetDefaultLogFile             );
+	SR_ValidateFile(L"Ini",       &UserConfig->Redirection.Ini,      &SR_GetDefaultRedirectionIni      );
+	SR_ValidateFile(L"Prefs Ini", &UserConfig->Redirection.PrefsIni, &SR_GetDefaultRedirectionPrefsIni );
+	SR_ValidateFile(L"Plugins",   &UserConfig->Redirection.Plugins,  &SR_GetDefaultRedirectionPlugins  );
 	SR_SaveUserConfig();
 }
 
@@ -325,7 +325,7 @@ void SR_FreeUserConfig()
 	free(UserConfig->Redirection.Ini);
 	free(UserConfig->Redirection.PrefsIni);
 	free(UserConfig->Redirection.Plugins);
-	
+
 	free(UserConfig);
 	UserConfig = NULL;
 }

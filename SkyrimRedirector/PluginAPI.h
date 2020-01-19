@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
 
-/* 
+/*
 *  +=================================================================================================+
 *  | This file contains a slimmed-down version of the PluginAPI.h found in SKSE build version 1.7.3  |
 *  | The file has been altered slightly to work better in a pure C environment.                      |
