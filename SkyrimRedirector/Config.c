@@ -390,7 +390,7 @@ void SR_FreeUserConfig()
 	free(UserConfig->Redirection.PrefsIni);
 	free(UserConfig->Redirection.Plugins);
 	free(UserConfig->Redirection.AppDataDir);
-    
+	
 	free(UserConfig);
 	UserConfig = NULL;
 }

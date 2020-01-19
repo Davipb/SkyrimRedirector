@@ -20,7 +20,7 @@ static struct
 	char* Ini;
 	char* PrefsIni;
 	char* Plugins;
-    char* AppDataDir;
+	char* AppDataDir;
 } UserConfigA;
 
 // Canonicizes a wide path, transforming it into an absolute path with no '.' or '..' nodes and in all uppercase
@@ -526,7 +526,7 @@ static void FreeNewPaths()
 	free(UserConfigA.Plugins);
 	UserConfigA.Plugins = NULL;
 
-   	free(UserConfigA.AppDataDir);
+	free(UserConfigA.AppDataDir);
 	UserConfigA.AppDataDir = NULL;
 
 }
