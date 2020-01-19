@@ -20,6 +20,7 @@ static struct
 	char* Ini;
 	char* PrefsIni;
 	char* Plugins;
+    char* AppDataDir;
 } UserConfigA;
 
 // Canonicizes a wide path, transforming it into an absolute path with no '.' or '..' nodes and in all uppercase
@@ -95,7 +96,7 @@ static const wchar_t* TryRedirectW(const wchar_t* input)
 	}
 	else if (SR_AreCaseInsensitiveEqualW(fileName, L"PLUGINS.TXT"))
 	{
-		if (CanonicalEndsWithW(input, L"APPDATA\\LOCAL\\SKYRIM\\PLUGINS.TXT"))
+		if (CanonicalEndsWithW(input, SR_GetUserConfig()->Redirection.AppDataDir))
 			return SR_GetUserConfig()->Redirection.Plugins;
 	}
 
@@ -113,18 +114,21 @@ static const char* TryRedirectA(const char* input)
 
 	if (SR_AreCaseInsensitiveEqualA(fileName, "SKYRIM.INI"))
 	{
-		if (CanonicalEndsWithA(input, "MY GAMES\\SKYRIM\\SKYRIM.INI"))
+		if (CanonicalEndsWithA(input, "MY GAMES\\SKYRIM\\SKYRIM.INI")) {
 			return UserConfigA.Ini;
+		}
 	}
 	else if (SR_AreCaseInsensitiveEqualA(fileName, "SKYRIMPREFS.INI"))
 	{
-		if (CanonicalEndsWithA(input, "MY GAMES\\SKYRIM\\SKYRIMPREFS.INI"))
+		if (CanonicalEndsWithA(input, "MY GAMES\\SKYRIM\\SKYRIMPREFS.INI")) {
 			return UserConfigA.PrefsIni;
+		}
 	}
 	else if (SR_AreCaseInsensitiveEqualA(fileName, "PLUGINS.TXT"))
 	{
-		if (CanonicalEndsWithA(input, "APPDATA\\LOCAL\\SKYRIM\\PLUGINS.TXT"))
+		if (CanonicalEndsWithA(input, UserConfigA.AppDataDir)) {
 			return UserConfigA.Plugins;
+		}
 	}
 
 	return input;
@@ -426,10 +430,15 @@ REDIRECT(MoveFileWithProgressW, BOOL, LPCWSTR lpExistingFileName, LPCWSTR lpNewF
 static void CreateNewPaths()
 {
 	const SR_UserConfig* config = SR_GetUserConfig();
+	SR_TRACE("Ini %ls", config->Redirection.Ini);
+	SR_TRACE("IniPref %ls", config->Redirection.PrefsIni);
+	SR_TRACE("Plugins %ls", config->Redirection.Plugins);
+	SR_TRACE("AppData %ls", config->Redirection.AppDataDir);
 
 	UserConfigA.Ini = SR_Utf16ToCodepage(config->Redirection.Ini);
 	UserConfigA.PrefsIni = SR_Utf16ToCodepage(config->Redirection.PrefsIni);
 	UserConfigA.Plugins = SR_Utf16ToCodepage(config->Redirection.Plugins);
+	UserConfigA.AppDataDir = SR_Utf16ToCodepage(config->Redirection.AppDataDir);
 }
 
 static SR_Redirection* Redirections = NULL;
@@ -516,6 +525,10 @@ static void FreeNewPaths()
 
 	free(UserConfigA.Plugins);
 	UserConfigA.Plugins = NULL;
+
+   	free(UserConfigA.AppDataDir);
+	UserConfigA.AppDataDir = NULL;
+
 }
 
 void SR_FreeRedirections()

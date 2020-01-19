@@ -154,3 +154,27 @@ bool SR_EndsWithA(const char* full, const char* component)
 	// which means the path doesn't end with the component
 	return componentCurrent == component;
 }
+
+
+bool SR_EndsWithAD(const char* full, const char* component)
+{
+	// Get a pointer to the last character of each string (right before the null terminator)
+	const char* fullCurrent = &full[strlen(full) - 1];
+	const char* componentCurrent = &component[strlen(component) - 1];
+
+	// Check each string backwards until one of them runs out
+	// If any character is different, the path doesn't end with the expected component
+	while (fullCurrent != full && componentCurrent != component)
+	{
+		SR_TRACE("%c      %c", *fullCurrent, *componentCurrent);
+		if (*fullCurrent != *componentCurrent)
+			return false;
+
+		fullCurrent--;
+		componentCurrent--;
+	}
+
+	// If the path ran out before the expected component, it is shorter than the expected component,
+	// which means the path doesn't end with the component
+	return componentCurrent == component;
+}
