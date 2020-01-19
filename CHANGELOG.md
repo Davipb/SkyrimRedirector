@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.2.1] - 2020-01-19
 ### Changed
 * When redirecting the `plugins.txt` call, `FOLDERID_LocalAppData` is now used instead of a hardcoded `App Data\...` path. This fixes conflicts with WINE, which redirects the file to a folder named `Application Data`.
 
@@ -26,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Initial Release
 
-[Unreleased]: https://github.com/Davipb/SkyrimRedirector/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/Davipb/SkyrimRedirector/compare/v1.2.1...HEAD
+[1.2.1]: https://github.com/Davipb/SkyrimRedirector/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/Davipb/SkyrimRedirector/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/Davipb/SkyrimRedirector/compare/v1.0.0...v1.1.0
