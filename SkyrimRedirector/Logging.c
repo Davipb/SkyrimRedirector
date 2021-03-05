@@ -16,7 +16,7 @@ static wchar_t* VFormat(const wchar_t* format, va_list args)
 {
 	int needed = _vscwprintf(format, args);
 
-	size_t bufferLen = needed + 1;
+	size_t bufferLen = (size_t)needed + 1;
 	wchar_t* buffer = calloc(bufferLen, sizeof(wchar_t));
 	vswprintf_s(buffer, bufferLen, format, args);
 
@@ -110,6 +110,6 @@ void SR_Log(uint8_t level, const wchar_t* message, ...)
 	free(buffer);
 
 	DWORD bytesWritten;
-	WriteFile(LogFile, result, strlen(result), &bytesWritten, NULL);
+	WriteFile(LogFile, result, (DWORD)strlen(result), &bytesWritten, NULL);
 	free(result);
 }

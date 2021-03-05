@@ -19,9 +19,19 @@ typedef bool(*SKSEPlugin_Load_t)(const SKSEInterface*);
 
 #define TRY(action) if(!action) return false
 
+#ifdef SR_SPECIAL_EDITION
+
+#define SKYRIM_INI &FOLDERID_Documents, L"\\My Games\\Skyrim Special Edition\\Skyrim.ini"
+#define SKYRIM_PREFS_INI &FOLDERID_Documents, L"\\My Games\\Skyrim Special Edition\\SkyrimPrefs.ini"
+#define SKYRIM_PLUGINS &FOLDERID_LocalAppData, L"\\Skyrim Special Edition\\plugins.txt"
+
+#else
+
 #define SKYRIM_INI &FOLDERID_Documents, L"\\My Games\\Skyrim\\Skyrim.ini"
 #define SKYRIM_PREFS_INI &FOLDERID_Documents, L"\\My Games\\Skyrim\\SkyrimPrefs.ini"
 #define SKYRIM_PLUGINS &FOLDERID_LocalAppData, L"\\Skyrim\\plugins.txt"
+
+#endif
 
 #define TRY_READ_INI(shouldRedirect) TRY(TryRead(SKYRIM_INI, &OriginalInfo.Ini, shouldRedirect))
 #define TRY_READ_PREFS_INI(shouldRedirect) TRY(TryRead(SKYRIM_PREFS_INI, &OriginalInfo.PrefsIni, shouldRedirect))

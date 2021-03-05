@@ -8,6 +8,36 @@
 #include <ShlObj.h>
 #include <stdbool.h>
 
+#define BASE_NAME_SKYRIM_INI_W       L"SKYRIM.INI"
+#define BASE_NAME_SKYRIM_PREFS_INI_W L"SKYRIMPREFS.INI"
+#define BASE_NAME_PLUGINS_TXT_W      L"PLUGINS.TXT"
+
+#define BASE_NAME_SKYRIM_INI_A        "SKYRIM.INI"
+#define BASE_NAME_SKYRIM_PREFS_INI_A  "SKYRIMPREFS.INI"
+#define BASE_NAME_PLUGINS_TXT_A       "PLUGINS.TXT"
+
+#ifdef SR_SPECIAL_EDITION
+
+#define PATH_SKYRIM_INI_W            L"MY GAMES\\SKYRIM SPECIAL EDITION\\SKYRIM.INI"
+#define PATH_SKYRIM_PREFS_INI_W      L"MY GAMES\\SKYRIM SPECIAL EDITION\\SKYRIMPREFS.INI"
+#define PATH_PLUGINS_TXT_W           L"\\SKYRIM SPECIAL EDITION\\PLUGINS.TXT"
+
+#define PATH_SKYRIM_INI_A             "MY GAMES\\SKYRIM SPECIAL EDITION\\SKYRIM.INI"
+#define PATH_SKYRIM_PREFS_INI_A       "MY GAMES\\SKYRIM SPECIAL EDITION\\SKYRIMPREFS.INI"
+#define PATH_PLUGINS_TXT_A            "\\SKYRIM SPECIAL EDITION\\PLUGINS.TXT"
+
+#else
+
+#define PATH_SKYRIM_INI_W            L"MY GAMES\\SKYRIM\\SKYRIM.INI"
+#define PATH_SKYRIM_PREFS_INI_W      L"MY GAMES\\SKYRIM\\SKYRIMPREFS.INI"
+#define PATH_PLUGINS_TXT_W           L"\\SKYRIM\\PLUGINS.TXT"
+
+#define PATH_SKYRIM_INI_A             "MY GAMES\\SKYRIM\\SKYRIM.INI"
+#define PATH_SKYRIM_PREFS_INI_A       "MY GAMES\\SKYRIM\\SKYRIMPREFS.INI"
+#define PATH_PLUGINS_TXT_A            "\\SKYRIM\\PLUGINS.TXT"
+
+#endif
+
 // +==================================================================+
 // |                         Redirect support                         |
 // +==================================================================+
@@ -84,17 +114,17 @@ static const wchar_t* TryRedirectW(const wchar_t* input)
 	// Canonicizing a path is expensive
 	// Match the file name first to avoid canonicizing a path whenever possible
 
-	if (SR_AreCaseInsensitiveEqualW(fileName, L"SKYRIM.INI"))
+	if (SR_AreCaseInsensitiveEqualW(fileName, BASE_NAME_SKYRIM_INI_W))
 	{
-		if (CanonicalEndsWithW(input, L"MY GAMES\\SKYRIM\\SKYRIM.INI"))
+		if (CanonicalEndsWithW(input, PATH_SKYRIM_INI_W))
 			return SR_GetUserConfig()->Redirection.Ini;
 	}
-	else if (SR_AreCaseInsensitiveEqualW(fileName, L"SKYRIMPREFS.INI"))
+	else if (SR_AreCaseInsensitiveEqualW(fileName, BASE_NAME_SKYRIM_PREFS_INI_W))
 	{
-		if (CanonicalEndsWithW(input, L"MY GAMES\\SKYRIM\\SKYRIMPREFS.INI"))
+		if (CanonicalEndsWithW(input, PATH_SKYRIM_PREFS_INI_W))
 			return SR_GetUserConfig()->Redirection.PrefsIni;
 	}
-	else if (SR_AreCaseInsensitiveEqualW(fileName, L"PLUGINS.TXT"))
+	else if (SR_AreCaseInsensitiveEqualW(fileName, BASE_NAME_PLUGINS_TXT_W))
 	{
 		if (CanonicalEqualsW(input, SkyrimPluginsPathW))
 			return SR_GetUserConfig()->Redirection.Plugins;
@@ -112,17 +142,17 @@ static const char* TryRedirectA(const char* input)
 	// Canonicizing a path is expensive
 	// Match the file name first to avoid canonicizing a path whenever possible
 
-	if (SR_AreCaseInsensitiveEqualA(fileName, "SKYRIM.INI"))
+	if (SR_AreCaseInsensitiveEqualA(fileName, BASE_NAME_SKYRIM_INI_A))
 	{
-		if (CanonicalEndsWithA(input, "MY GAMES\\SKYRIM\\SKYRIM.INI"))
+		if (CanonicalEndsWithA(input, PATH_SKYRIM_INI_A))
 			return UserConfigA.Ini;
 	}
-	else if (SR_AreCaseInsensitiveEqualA(fileName, "SKYRIMPREFS.INI"))
+	else if (SR_AreCaseInsensitiveEqualA(fileName, BASE_NAME_SKYRIM_PREFS_INI_A))
 	{
-		if (CanonicalEndsWithA(input, "MY GAMES\\SKYRIM\\SKYRIMPREFS.INI"))
+		if (CanonicalEndsWithA(input, PATH_SKYRIM_PREFS_INI_A))
 			return UserConfigA.PrefsIni;
 	}
-	else if (SR_AreCaseInsensitiveEqualA(fileName, "PLUGINS.TXT"))
+	else if (SR_AreCaseInsensitiveEqualA(fileName, BASE_NAME_PLUGINS_TXT_A))
 	{
 		if (CanonicalEqualsA(input, SkyrimPluginsPathA))
 			return UserConfigA.Plugins;
@@ -433,7 +463,7 @@ static void CreatePaths()
 	UserConfigA.Plugins = SR_Utf16ToCodepage(config->Redirection.Plugins);
 
 	wchar_t* appData = SR_GetKnownFolder(&FOLDERID_LocalAppData);
-	wchar_t* uncanonicizedPath = SR_Concat(2, appData, L"\\SKYRIM\\PLUGINS.TXT");
+	wchar_t* uncanonicizedPath = SR_Concat(2, appData, PATH_PLUGINS_TXT_W);
 	SkyrimPluginsPathW = SR_CanonicizePathW(uncanonicizedPath);
 	free(uncanonicizedPath);
 

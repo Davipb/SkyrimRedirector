@@ -25,6 +25,18 @@
 #define SR_DEFAULT_LOG_LEVEL L"INFO"
 #endif
 
+#ifdef SR_SPECIAL_EDITION
+// The default file path to where Skyrim.ini will be redirected, relative to the Documents folder.
+#define SR_DEFAULT_REDIRECTION_INI L"\\My Games\\Enderal Special Edition\\Enderal.ini"
+
+// The default file path to where SkyrimPrefs.ini will be redirected, relative to the Documents folder.
+#define SR_DEFAULT_REDIRECTION_PREFS_INI L"\\My Games\\Enderal Special Edition\\EnderalPrefs.ini"
+
+// The default file path to where plugins.txt will be redirected, relative to the Local AppData folder.
+#define SR_DEFAULT_REDIRECTION_PLUGINS L"\\Enderal Special Edition\\plugins.txt"
+
+#else
+
 // The default file path to where Skyrim.ini will be redirected, relative to the Documents folder.
 #define SR_DEFAULT_REDIRECTION_INI L"\\My Games\\Enderal\\Enderal.ini"
 
@@ -34,6 +46,7 @@
 // The default file path to where plugins.txt will be redirected, relative to the Local AppData folder.
 #define SR_DEFAULT_REDIRECTION_PLUGINS L"\\Enderal\\plugins.txt"
 
+#endif
 
 // Reads a string stored in a .ini fully
 // If the specified key doesn't exist, this returns null.
@@ -41,7 +54,7 @@
 static wchar_t* SR_ReadIniString(const wchar_t* section, const wchar_t* key, const wchar_t* file)
 {
 	// Exponentially increase the buffer size until it fits the full module file name
-	size_t resultSize = 16;
+	DWORD resultSize = 16;
 	wchar_t* result = NULL;
 	DWORD actualLen;
 	do
@@ -70,7 +83,7 @@ static wchar_t* SR_ReadIniString(const wchar_t* section, const wchar_t* key, con
 static wchar_t* SR_GetModuleFilePath()
 {
 	// Exponentially increase the buffer size until it fits the full module file name
-	size_t moduleFilePathSize = 16;
+	DWORD moduleFilePathSize = 16;
 	wchar_t* moduleFilePath = NULL;
 	do
 	{
