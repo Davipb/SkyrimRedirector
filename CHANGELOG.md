@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.1] - 2022-11-19
+### Added
+* Compatibility with the Anniversary Edition of SKSE64
+
+## [1.3.0] - 2021-03-05
+### Added
+* 64-bit version of the plugin for compatibility with SKSE64
+
 ## [1.2.1] - 2020-01-19
 ### Changed
 * When redirecting the `plugins.txt` call, `FOLDERID_LocalAppData` is now used instead of a hardcoded `App Data\...` path. This fixes conflicts with WINE, which redirects the file to a folder named `Application Data`.
