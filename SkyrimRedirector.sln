@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29709.97
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SkyrimRedirector", "SkyrimRedirector\SkyrimRedirector.vcxproj", "{2B6E58D8-27A1-4C7E-9115-D315C2599C9E}"
 EndProject
@@ -19,38 +19,64 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Oldrim = Debug|Oldrim
-		Debug|SpecialEdition = Debug|SpecialEdition
-		Release|Oldrim = Release|Oldrim
-		Release|SpecialEdition = Release|SpecialEdition
+		Debug GOG|Legendary Edition = Debug GOG|Legendary Edition
+		Debug GOG|Special Edition = Debug GOG|Special Edition
+		Debug Steam|Legendary Edition = Debug Steam|Legendary Edition
+		Debug Steam|Special Edition = Debug Steam|Special Edition
+		Release GOG|Legendary Edition = Release GOG|Legendary Edition
+		Release GOG|Special Edition = Release GOG|Special Edition
+		Release Steam|Legendary Edition = Release Steam|Legendary Edition
+		Release Steam|Special Edition = Release Steam|Special Edition
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{2B6E58D8-27A1-4C7E-9115-D315C2599C9E}.Debug|Oldrim.ActiveCfg = Debug|Win32
-		{2B6E58D8-27A1-4C7E-9115-D315C2599C9E}.Debug|Oldrim.Build.0 = Debug|Win32
-		{2B6E58D8-27A1-4C7E-9115-D315C2599C9E}.Debug|SpecialEdition.ActiveCfg = Debug|x64
-		{2B6E58D8-27A1-4C7E-9115-D315C2599C9E}.Debug|SpecialEdition.Build.0 = Debug|x64
-		{2B6E58D8-27A1-4C7E-9115-D315C2599C9E}.Release|Oldrim.ActiveCfg = Release|Win32
-		{2B6E58D8-27A1-4C7E-9115-D315C2599C9E}.Release|Oldrim.Build.0 = Release|Win32
-		{2B6E58D8-27A1-4C7E-9115-D315C2599C9E}.Release|SpecialEdition.ActiveCfg = Release|x64
-		{2B6E58D8-27A1-4C7E-9115-D315C2599C9E}.Release|SpecialEdition.Build.0 = Release|x64
-		{A12518FB-BC92-4A1B-A986-329AA63014ED}.Debug|Oldrim.ActiveCfg = Release|Win32
-		{A12518FB-BC92-4A1B-A986-329AA63014ED}.Debug|Oldrim.Build.0 = Release|Win32
-		{A12518FB-BC92-4A1B-A986-329AA63014ED}.Debug|SpecialEdition.ActiveCfg = Release|x64
-		{A12518FB-BC92-4A1B-A986-329AA63014ED}.Debug|SpecialEdition.Build.0 = Release|x64
-		{A12518FB-BC92-4A1B-A986-329AA63014ED}.Release|Oldrim.ActiveCfg = Release|Win32
-		{A12518FB-BC92-4A1B-A986-329AA63014ED}.Release|Oldrim.Build.0 = Release|Win32
-		{A12518FB-BC92-4A1B-A986-329AA63014ED}.Release|SpecialEdition.ActiveCfg = Release|x64
-		{A12518FB-BC92-4A1B-A986-329AA63014ED}.Release|SpecialEdition.Build.0 = Release|x64
-		{96F5D339-025D-4C89-9ED2-BDFA089F77AF}.Debug|Oldrim.ActiveCfg = Debug|Win32
-		{96F5D339-025D-4C89-9ED2-BDFA089F77AF}.Debug|Oldrim.Build.0 = Debug|Win32
-		{96F5D339-025D-4C89-9ED2-BDFA089F77AF}.Debug|Oldrim.Deploy.0 = Debug|Win32
-		{96F5D339-025D-4C89-9ED2-BDFA089F77AF}.Debug|SpecialEdition.ActiveCfg = Debug|x64
-		{96F5D339-025D-4C89-9ED2-BDFA089F77AF}.Debug|SpecialEdition.Build.0 = Debug|x64
-		{96F5D339-025D-4C89-9ED2-BDFA089F77AF}.Release|Oldrim.ActiveCfg = Release|Win32
-		{96F5D339-025D-4C89-9ED2-BDFA089F77AF}.Release|Oldrim.Build.0 = Release|Win32
-		{96F5D339-025D-4C89-9ED2-BDFA089F77AF}.Release|Oldrim.Deploy.0 = Release|Win32
-		{96F5D339-025D-4C89-9ED2-BDFA089F77AF}.Release|SpecialEdition.ActiveCfg = Release|x64
-		{96F5D339-025D-4C89-9ED2-BDFA089F77AF}.Release|SpecialEdition.Build.0 = Release|x64
+		{2B6E58D8-27A1-4C7E-9115-D315C2599C9E}.Debug GOG|Legendary Edition.ActiveCfg = Debug GOG|Win32
+		{2B6E58D8-27A1-4C7E-9115-D315C2599C9E}.Debug GOG|Legendary Edition.Build.0 = Debug GOG|Win32
+		{2B6E58D8-27A1-4C7E-9115-D315C2599C9E}.Debug GOG|Special Edition.ActiveCfg = Debug GOG|x64
+		{2B6E58D8-27A1-4C7E-9115-D315C2599C9E}.Debug GOG|Special Edition.Build.0 = Debug GOG|x64
+		{2B6E58D8-27A1-4C7E-9115-D315C2599C9E}.Debug Steam|Legendary Edition.ActiveCfg = Debug Steam|Win32
+		{2B6E58D8-27A1-4C7E-9115-D315C2599C9E}.Debug Steam|Legendary Edition.Build.0 = Debug Steam|Win32
+		{2B6E58D8-27A1-4C7E-9115-D315C2599C9E}.Debug Steam|Special Edition.ActiveCfg = Debug Steam|x64
+		{2B6E58D8-27A1-4C7E-9115-D315C2599C9E}.Debug Steam|Special Edition.Build.0 = Debug Steam|x64
+		{2B6E58D8-27A1-4C7E-9115-D315C2599C9E}.Release GOG|Legendary Edition.ActiveCfg = Release GOG|Win32
+		{2B6E58D8-27A1-4C7E-9115-D315C2599C9E}.Release GOG|Legendary Edition.Build.0 = Release GOG|Win32
+		{2B6E58D8-27A1-4C7E-9115-D315C2599C9E}.Release GOG|Special Edition.ActiveCfg = Release GOG|x64
+		{2B6E58D8-27A1-4C7E-9115-D315C2599C9E}.Release GOG|Special Edition.Build.0 = Release GOG|x64
+		{2B6E58D8-27A1-4C7E-9115-D315C2599C9E}.Release Steam|Legendary Edition.ActiveCfg = Release Steam|Win32
+		{2B6E58D8-27A1-4C7E-9115-D315C2599C9E}.Release Steam|Legendary Edition.Build.0 = Release Steam|Win32
+		{2B6E58D8-27A1-4C7E-9115-D315C2599C9E}.Release Steam|Special Edition.ActiveCfg = Release Steam|x64
+		{2B6E58D8-27A1-4C7E-9115-D315C2599C9E}.Release Steam|Special Edition.Build.0 = Release Steam|x64
+		{A12518FB-BC92-4A1B-A986-329AA63014ED}.Debug GOG|Legendary Edition.ActiveCfg = Release|Win32
+		{A12518FB-BC92-4A1B-A986-329AA63014ED}.Debug GOG|Legendary Edition.Build.0 = Release|Win32
+		{A12518FB-BC92-4A1B-A986-329AA63014ED}.Debug GOG|Special Edition.ActiveCfg = Release|x64
+		{A12518FB-BC92-4A1B-A986-329AA63014ED}.Debug GOG|Special Edition.Build.0 = Release|x64
+		{A12518FB-BC92-4A1B-A986-329AA63014ED}.Debug Steam|Legendary Edition.ActiveCfg = Release|Win32
+		{A12518FB-BC92-4A1B-A986-329AA63014ED}.Debug Steam|Legendary Edition.Build.0 = Release|Win32
+		{A12518FB-BC92-4A1B-A986-329AA63014ED}.Debug Steam|Special Edition.ActiveCfg = Release|x64
+		{A12518FB-BC92-4A1B-A986-329AA63014ED}.Debug Steam|Special Edition.Build.0 = Release|x64
+		{A12518FB-BC92-4A1B-A986-329AA63014ED}.Release GOG|Legendary Edition.ActiveCfg = Release|Win32
+		{A12518FB-BC92-4A1B-A986-329AA63014ED}.Release GOG|Legendary Edition.Build.0 = Release|Win32
+		{A12518FB-BC92-4A1B-A986-329AA63014ED}.Release GOG|Special Edition.ActiveCfg = Release|x64
+		{A12518FB-BC92-4A1B-A986-329AA63014ED}.Release GOG|Special Edition.Build.0 = Release|x64
+		{A12518FB-BC92-4A1B-A986-329AA63014ED}.Release Steam|Legendary Edition.ActiveCfg = Release|Win32
+		{A12518FB-BC92-4A1B-A986-329AA63014ED}.Release Steam|Legendary Edition.Build.0 = Release|Win32
+		{A12518FB-BC92-4A1B-A986-329AA63014ED}.Release Steam|Special Edition.ActiveCfg = Release|x64
+		{A12518FB-BC92-4A1B-A986-329AA63014ED}.Release Steam|Special Edition.Build.0 = Release|x64
+		{96F5D339-025D-4C89-9ED2-BDFA089F77AF}.Debug GOG|Legendary Edition.ActiveCfg = Debug|Win32
+		{96F5D339-025D-4C89-9ED2-BDFA089F77AF}.Debug GOG|Legendary Edition.Build.0 = Debug|Win32
+		{96F5D339-025D-4C89-9ED2-BDFA089F77AF}.Debug GOG|Special Edition.ActiveCfg = Debug|x64
+		{96F5D339-025D-4C89-9ED2-BDFA089F77AF}.Debug GOG|Special Edition.Build.0 = Debug|x64
+		{96F5D339-025D-4C89-9ED2-BDFA089F77AF}.Debug Steam|Legendary Edition.ActiveCfg = Debug|Win32
+		{96F5D339-025D-4C89-9ED2-BDFA089F77AF}.Debug Steam|Legendary Edition.Build.0 = Debug|Win32
+		{96F5D339-025D-4C89-9ED2-BDFA089F77AF}.Debug Steam|Special Edition.ActiveCfg = Debug|x64
+		{96F5D339-025D-4C89-9ED2-BDFA089F77AF}.Debug Steam|Special Edition.Build.0 = Debug|x64
+		{96F5D339-025D-4C89-9ED2-BDFA089F77AF}.Release GOG|Legendary Edition.ActiveCfg = Release|Win32
+		{96F5D339-025D-4C89-9ED2-BDFA089F77AF}.Release GOG|Legendary Edition.Build.0 = Release|Win32
+		{96F5D339-025D-4C89-9ED2-BDFA089F77AF}.Release GOG|Special Edition.ActiveCfg = Release|x64
+		{96F5D339-025D-4C89-9ED2-BDFA089F77AF}.Release GOG|Special Edition.Build.0 = Release|x64
+		{96F5D339-025D-4C89-9ED2-BDFA089F77AF}.Release Steam|Legendary Edition.ActiveCfg = Release|Win32
+		{96F5D339-025D-4C89-9ED2-BDFA089F77AF}.Release Steam|Legendary Edition.Build.0 = Release|Win32
+		{96F5D339-025D-4C89-9ED2-BDFA089F77AF}.Release Steam|Special Edition.ActiveCfg = Release|x64
+		{96F5D339-025D-4C89-9ED2-BDFA089F77AF}.Release Steam|Special Edition.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -2,6 +2,8 @@
 #include "Logging.h"
 #include "Config.h"
 #include "StringUtils.h"
+#include "PlatformDefinitions.h"
+
 #include <Windows.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -60,6 +62,7 @@ void SR_StartLogging()
 	}
 
 	SR_INFO("Skyrim Redirector by Davipb started. github.com/Davipb/SkyrimRedirector");
+	SR_INFO("Platform: %ls", SR_PLATFORM_IDENTIFIER_W);
 }
 
 void SR_StopLogging()

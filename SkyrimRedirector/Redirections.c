@@ -4,6 +4,7 @@
 #include "StringUtils.h"
 #include "Config.h"
 #include "WindowsUtils.h"
+#include "PlatformDefinitions.h"
 
 #include <ShlObj.h>
 #include <stdbool.h>
@@ -16,27 +17,13 @@
 #define BASE_NAME_SKYRIM_PREFS_INI_A  "SKYRIMPREFS.INI"
 #define BASE_NAME_PLUGINS_TXT_A       "PLUGINS.TXT"
 
-#ifdef SR_SPECIAL_EDITION
+#define PATH_SKYRIM_INI_W            L"MY GAMES\\SKYRIM" SR_FOLDER_SUFFIX_W L"\\SKYRIM.INI"
+#define PATH_SKYRIM_PREFS_INI_W      L"MY GAMES\\SKYRIM" SR_FOLDER_SUFFIX_W L"\\SKYRIMPREFS.INI"
+#define PATH_PLUGINS_TXT_W           L"\\SKYRIM" SR_FOLDER_SUFFIX_W L"\\PLUGINS.TXT"
 
-#define PATH_SKYRIM_INI_W            L"MY GAMES\\SKYRIM SPECIAL EDITION\\SKYRIM.INI"
-#define PATH_SKYRIM_PREFS_INI_W      L"MY GAMES\\SKYRIM SPECIAL EDITION\\SKYRIMPREFS.INI"
-#define PATH_PLUGINS_TXT_W           L"\\SKYRIM SPECIAL EDITION\\PLUGINS.TXT"
-
-#define PATH_SKYRIM_INI_A             "MY GAMES\\SKYRIM SPECIAL EDITION\\SKYRIM.INI"
-#define PATH_SKYRIM_PREFS_INI_A       "MY GAMES\\SKYRIM SPECIAL EDITION\\SKYRIMPREFS.INI"
-#define PATH_PLUGINS_TXT_A            "\\SKYRIM SPECIAL EDITION\\PLUGINS.TXT"
-
-#else
-
-#define PATH_SKYRIM_INI_W            L"MY GAMES\\SKYRIM\\SKYRIM.INI"
-#define PATH_SKYRIM_PREFS_INI_W      L"MY GAMES\\SKYRIM\\SKYRIMPREFS.INI"
-#define PATH_PLUGINS_TXT_W           L"\\SKYRIM\\PLUGINS.TXT"
-
-#define PATH_SKYRIM_INI_A             "MY GAMES\\SKYRIM\\SKYRIM.INI"
-#define PATH_SKYRIM_PREFS_INI_A       "MY GAMES\\SKYRIM\\SKYRIMPREFS.INI"
-#define PATH_PLUGINS_TXT_A            "\\SKYRIM\\PLUGINS.TXT"
-
-#endif
+#define PATH_SKYRIM_INI_A             "MY GAMES\\SKYRIM" SR_FOLDER_SUFFIX_A "\\SKYRIM.INI"
+#define PATH_SKYRIM_PREFS_INI_A       "MY GAMES\\SKYRIM" SR_FOLDER_SUFFIX_A "\\SKYRIMPREFS.INI"
+#define PATH_PLUGINS_TXT_A            "\\SKYRIM" SR_FOLDER_SUFFIX_A "\\PLUGINS.TXT"
 
 // +==================================================================+
 // |                         Redirect support                         |

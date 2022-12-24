@@ -3,6 +3,7 @@
 #include "StringUtils.h"
 #include "Logging.h"
 #include "WindowsUtils.h"
+#include "PlatformDefinitions.h"
 
 #include <stdlib.h>
 #include <stdbool.h>
@@ -25,28 +26,14 @@
 #define SR_DEFAULT_LOG_LEVEL L"INFO"
 #endif
 
-#ifdef SR_SPECIAL_EDITION
 // The default file path to where Skyrim.ini will be redirected, relative to the Documents folder.
-#define SR_DEFAULT_REDIRECTION_INI L"\\My Games\\Enderal Special Edition\\Enderal.ini"
+#define SR_DEFAULT_REDIRECTION_INI L"\\My Games\\Enderal" SR_FOLDER_SUFFIX_W L"\\Enderal.ini"
 
 // The default file path to where SkyrimPrefs.ini will be redirected, relative to the Documents folder.
-#define SR_DEFAULT_REDIRECTION_PREFS_INI L"\\My Games\\Enderal Special Edition\\EnderalPrefs.ini"
+#define SR_DEFAULT_REDIRECTION_PREFS_INI L"\\My Games\\Enderal" SR_FOLDER_SUFFIX_W L"\\EnderalPrefs.ini"
 
 // The default file path to where plugins.txt will be redirected, relative to the Local AppData folder.
-#define SR_DEFAULT_REDIRECTION_PLUGINS L"\\Enderal Special Edition\\plugins.txt"
-
-#else
-
-// The default file path to where Skyrim.ini will be redirected, relative to the Documents folder.
-#define SR_DEFAULT_REDIRECTION_INI L"\\My Games\\Enderal\\Enderal.ini"
-
-// The default file path to where SkyrimPrefs.ini will be redirected, relative to the Documents folder.
-#define SR_DEFAULT_REDIRECTION_PREFS_INI L"\\My Games\\Enderal\\EnderalPrefs.ini"
-
-// The default file path to where plugins.txt will be redirected, relative to the Local AppData folder.
-#define SR_DEFAULT_REDIRECTION_PLUGINS L"\\Enderal\\plugins.txt"
-
-#endif
+#define SR_DEFAULT_REDIRECTION_PLUGINS L"\\Enderal" SR_FOLDER_SUFFIX_W L"\\plugins.txt"
 
 // Reads a string stored in a .ini fully
 // If the specified key doesn't exist, this returns null.
