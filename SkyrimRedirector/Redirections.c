@@ -9,20 +9,24 @@
 #include <ShlObj.h>
 #include <stdbool.h>
 
-#define BASE_NAME_SKYRIM_INI_W       L"SKYRIM.INI"
-#define BASE_NAME_SKYRIM_PREFS_INI_W L"SKYRIMPREFS.INI"
-#define BASE_NAME_PLUGINS_TXT_W      L"PLUGINS.TXT"
+#define BASE_NAME_SKYRIM_INI_W        L"SKYRIM.INI"
+#define BASE_NAME_SKYRIM_PREFS_INI_W  L"SKYRIMPREFS.INI"
+#define BASE_NAME_SKYRIM_CUSTOM_INI_W L"SKYRIMCUSTOM.INI"
+#define BASE_NAME_PLUGINS_TXT_W       L"PLUGINS.TXT"
 
-#define BASE_NAME_SKYRIM_INI_A        "SKYRIM.INI"
-#define BASE_NAME_SKYRIM_PREFS_INI_A  "SKYRIMPREFS.INI"
-#define BASE_NAME_PLUGINS_TXT_A       "PLUGINS.TXT"
+#define BASE_NAME_SKYRIM_INI_A         "SKYRIM.INI"
+#define BASE_NAME_SKYRIM_PREFS_INI_A   "SKYRIMPREFS.INI"
+#define BASE_NAME_SKYRIM_CUSTOM_INI_A  "SKYRIMCUSTOM.INI"
+#define BASE_NAME_PLUGINS_TXT_A        "PLUGINS.TXT"
 
 #define PATH_SKYRIM_INI_W            L"MY GAMES\\SKYRIM" SR_FOLDER_SUFFIX_W L"\\SKYRIM.INI"
 #define PATH_SKYRIM_PREFS_INI_W      L"MY GAMES\\SKYRIM" SR_FOLDER_SUFFIX_W L"\\SKYRIMPREFS.INI"
+#define PATH_SKYRIM_CUSTOM_INI_W     L"MY GAMES\\SKYRIM" SR_FOLDER_SUFFIX_W L"\\SKYRIMCUSTOM.INI"
 #define PATH_PLUGINS_TXT_W           L"\\SKYRIM" SR_FOLDER_SUFFIX_W L"\\PLUGINS.TXT"
 
 #define PATH_SKYRIM_INI_A             "MY GAMES\\SKYRIM" SR_FOLDER_SUFFIX_A "\\SKYRIM.INI"
 #define PATH_SKYRIM_PREFS_INI_A       "MY GAMES\\SKYRIM" SR_FOLDER_SUFFIX_A "\\SKYRIMPREFS.INI"
+#define PATH_SKYRIM_CUSTOM_INI_A      "MY GAMES\\SKYRIM" SR_FOLDER_SUFFIX_A "\\SKYRIMCUSTOM.INI"
 #define PATH_PLUGINS_TXT_A            "\\SKYRIM" SR_FOLDER_SUFFIX_A "\\PLUGINS.TXT"
 
 // +==================================================================+
@@ -38,6 +42,7 @@ static struct
 {
 	char* Ini;
 	char* PrefsIni;
+	char* CustomIni;
 	char* Plugins;
 
 } UserConfigA;
@@ -111,6 +116,11 @@ static const wchar_t* TryRedirectW(const wchar_t* input)
 		if (CanonicalEndsWithW(input, PATH_SKYRIM_PREFS_INI_W))
 			return SR_GetUserConfig()->Redirection.PrefsIni;
 	}
+	else if (SR_AreCaseInsensitiveEqualW(fileName, BASE_NAME_SKYRIM_CUSTOM_INI_W))
+	{
+		if (CanonicalEndsWithW(input, PATH_SKYRIM_CUSTOM_INI_A))
+			return SR_GetUserConfig()->Redirection.CustomIni;
+	}
 	else if (SR_AreCaseInsensitiveEqualW(fileName, BASE_NAME_PLUGINS_TXT_W))
 	{
 		if (CanonicalEqualsW(input, SkyrimPluginsPathW))
@@ -138,6 +148,11 @@ static const char* TryRedirectA(const char* input)
 	{
 		if (CanonicalEndsWithA(input, PATH_SKYRIM_PREFS_INI_A))
 			return UserConfigA.PrefsIni;
+	}
+	else if (SR_AreCaseInsensitiveEqualA(fileName, BASE_NAME_SKYRIM_CUSTOM_INI_A))
+	{
+		if (CanonicalEndsWithA(input, PATH_SKYRIM_CUSTOM_INI_A))
+			return UserConfigA.CustomIni;
 	}
 	else if (SR_AreCaseInsensitiveEqualA(fileName, BASE_NAME_PLUGINS_TXT_A))
 	{
@@ -447,6 +462,7 @@ static void CreatePaths()
 
 	UserConfigA.Ini = SR_Utf16ToCodepage(config->Redirection.Ini);
 	UserConfigA.PrefsIni = SR_Utf16ToCodepage(config->Redirection.PrefsIni);
+	UserConfigA.CustomIni = SR_Utf16ToCodepage(config->Redirection.CustomIni);
 	UserConfigA.Plugins = SR_Utf16ToCodepage(config->Redirection.Plugins);
 
 	wchar_t* appData = SR_GetKnownFolder(&FOLDERID_LocalAppData);
@@ -540,6 +556,9 @@ static void FreePaths()
 
 	free(UserConfigA.PrefsIni);
 	UserConfigA.PrefsIni = NULL;
+
+	free(UserConfigA.CustomIni);
+	UserConfigA.CustomIni = NULL;
 
 	free(UserConfigA.Plugins);
 	UserConfigA.Plugins = NULL;

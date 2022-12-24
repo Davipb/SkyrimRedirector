@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 * Support for the GOG version of the game
+* SkyrimCustom.ini redirection
 
 ## [1.3.1] - 2022-11-19
 ### Added

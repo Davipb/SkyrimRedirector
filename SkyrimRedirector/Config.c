@@ -32,6 +32,9 @@
 // The default file path to where SkyrimPrefs.ini will be redirected, relative to the Documents folder.
 #define SR_DEFAULT_REDIRECTION_PREFS_INI L"\\My Games\\Enderal" SR_FOLDER_SUFFIX_W L"\\EnderalPrefs.ini"
 
+// The default file path to where SkyrimCustom.ini will be redirected, relative to the Documents folder.
+#define SR_DEFAULT_REDIRECTION_CUSTOM_INI L"\\My Games\\Enderal" SR_FOLDER_SUFFIX_W L"\\EnderalCustom.ini"
+
 // The default file path to where plugins.txt will be redirected, relative to the Local AppData folder.
 #define SR_DEFAULT_REDIRECTION_PLUGINS L"\\Enderal" SR_FOLDER_SUFFIX_W L"\\plugins.txt"
 
@@ -155,6 +158,18 @@ static wchar_t* SR_GetDefaultRedirectionPrefsIni()
 	return result;
 }
 
+// Gets the default file path of the redirected custom .ini file.
+// The returned string is allocated dynamically and must be freed.
+static wchar_t* SR_GetDefaultRedirectionCustomIni()
+{
+	wchar_t* documentsPath = SR_GetKnownFolder(&FOLDERID_Documents);
+
+	wchar_t* result = SR_Concat(2, documentsPath, SR_DEFAULT_REDIRECTION_CUSTOM_INI);
+	free(documentsPath);
+
+	return result;
+}
+
 // Gets the default file path of the redirected plugins file.
 // The returned string is allocated dynamically and must be freed.
 static wchar_t* SR_GetDefaultRedirectionPlugins()
@@ -238,6 +253,7 @@ static void SR_SaveUserConfig()
 
 	WritePrivateProfileStringW(L"Redirection", L"Ini", UserConfig->Redirection.Ini, configFile);
 	WritePrivateProfileStringW(L"Redirection", L"PrefsIni", UserConfig->Redirection.PrefsIni, configFile);
+	WritePrivateProfileStringW(L"Redirection", L"CustomIni", UserConfig->Redirection.CustomIni, configFile);
 	WritePrivateProfileStringW(L"Redirection", L"Plugins", UserConfig->Redirection.Plugins, configFile);
 
 	free(configFile);
@@ -289,6 +305,9 @@ static void SR_LoadConfig()
 	READOR("Redirection", "PrefsIni", SR_GetDefaultRedirectionPrefsIni());
 	UserConfig->Redirection.PrefsIni = read;
 
+	READOR("Redirection", "CustomIni", SR_GetDefaultRedirectionCustomIni());
+	UserConfig->Redirection.CustomIni = read;
+
 	READOR("Redirection", "Plugins", SR_GetDefaultRedirectionPlugins());
 	UserConfig->Redirection.Plugins = read;
 
@@ -309,10 +328,11 @@ void SR_ValidateUserConfig()
 {
 	if (UserConfig == NULL) SR_LoadConfig();
 
-	SR_ValidateFile(L"Log File",  &UserConfig->Logging.File,         &SR_GetDefaultLogFile             );
-	SR_ValidateFile(L"Ini",       &UserConfig->Redirection.Ini,      &SR_GetDefaultRedirectionIni      );
-	SR_ValidateFile(L"Prefs Ini", &UserConfig->Redirection.PrefsIni, &SR_GetDefaultRedirectionPrefsIni );
-	SR_ValidateFile(L"Plugins",   &UserConfig->Redirection.Plugins,  &SR_GetDefaultRedirectionPlugins  );
+	SR_ValidateFile(L"Log File",   &UserConfig->Logging.File,          &SR_GetDefaultLogFile             );
+	SR_ValidateFile(L"Ini",        &UserConfig->Redirection.Ini,       &SR_GetDefaultRedirectionIni      );
+	SR_ValidateFile(L"Prefs Ini",  &UserConfig->Redirection.PrefsIni,  &SR_GetDefaultRedirectionPrefsIni );
+	SR_ValidateFile(L"Custom Ini", &UserConfig->Redirection.CustomIni, &SR_GetDefaultRedirectionCustomIni);
+	SR_ValidateFile(L"Plugins",    &UserConfig->Redirection.Plugins,   &SR_GetDefaultRedirectionPlugins  );
 	SR_SaveUserConfig();
 }
 
@@ -324,6 +344,7 @@ void SR_FreeUserConfig()
 
 	free(UserConfig->Redirection.Ini);
 	free(UserConfig->Redirection.PrefsIni);
+	free(UserConfig->Redirection.CustomIni);
 	free(UserConfig->Redirection.Plugins);
 
 	free(UserConfig);

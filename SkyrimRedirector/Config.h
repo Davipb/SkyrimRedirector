@@ -16,6 +16,7 @@ typedef struct
 	{
 		wchar_t* Ini;
 		wchar_t* PrefsIni;
+		wchar_t* CustomIni;
 		wchar_t* Plugins;
 
 	} Redirection;
